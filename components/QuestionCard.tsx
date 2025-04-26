@@ -3,7 +3,7 @@ import type { Question } from '@/data/demo-questions';
 
 type Props = {
   question: Question;
-  selected: number | null;          // ← parent controls the state
+  selected: number | null;
   onSelect: (choice: number) => void;
 };
 
@@ -17,10 +17,10 @@ export default function QuestionCard({ question, selected, onSelect }: Props) {
           const isChosen  = selected === idx;
           const isCorrect = idx === question.answer;
 
-          const base     = 'w-full text-left px-4 py-2 rounded border transition';
-          const idle     = 'hover:bg-gray-50';
-          const correct  = 'bg-emerald-50 border-emerald-600 text-emerald-800';
-          const wrong    = 'bg-rose-50 border-rose-600 text-rose-800';
+          const base    = 'w-full text-left px-4 py-2 rounded border transition';
+          const idle    = 'hover:bg-gray-50';
+          const correct = 'bg-emerald-50 border-emerald-600 text-emerald-800';
+          const wrong   = 'bg-rose-50 border-rose-600 text-rose-800';
 
           const style =
             selected === null
@@ -35,7 +35,7 @@ export default function QuestionCard({ question, selected, onSelect }: Props) {
             <li key={idx}>
               <button
                 className={`${base} ${style}`}
-                disabled={selected !== null}        // lock after first pick
+                disabled={selected !== null}
                 onClick={() => onSelect(idx)}
               >
                 {opt}

@@ -16,6 +16,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <Link href="/" className="font-bold text-lg text-blue-700">
               PassFRCSENT
             </Link>
+
             <div className="space-x-4">
               <Link href="/practice" className="hover:text-blue-600">
                 Practice
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
         </nav>
+
         <main className="flex-1">{children}</main>
+
         <footer className="bg-gray-50 py-6 text-center text-sm text-gray-500">
           © {new Date().getFullYear()} PassFRCSENT · Not affiliated with ICBSE
         </footer>
