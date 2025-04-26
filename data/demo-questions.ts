@@ -47,4 +47,4 @@ export const demoQuestions: Question[] = [
     explanation: 'Targets Pseudomonas aeruginosa.',
   },
   { id: 'q5', stem: 'Most common neck space infection in children?', options: ['Parapharyngeal', 'Retropharyngeal', 'Submandibular', 'Pretracheal'], answer: 1, explanation: 'Retropharyngeal abscess is common in <5-year-olds.' },
-  { id: 'q6', stem: 'Which semicircular canal is most commonly involved in B
+  { id: 'q6', stem: 'Which semicircular canal is most commonly involved in BPPV?', options: ['Anterior', 'Posterior', 'Horizontal', 'Superior'], answer: 1, explanation: 'Posterior canal (≈90 %).' },
