@@ -8,7 +8,7 @@ export default function OptionCard({
   correct,
   explanation,
   disabled,
-  revealed,          // ← NEW
+  revealed,
   onSelect,
 }: {
   label: string;
@@ -17,7 +17,7 @@ export default function OptionCard({
   correct: number;
   explanation: string;
   disabled: boolean;
-  revealed: boolean; // ← NEW
+  revealed: boolean;
   onSelect: (i: number) => void;
 }) {
   const chosen = selected === index;
@@ -29,16 +29,19 @@ export default function OptionCard({
   const base =
     'w-full text-left border rounded p-3 transition flex items-start justify-between';
   const neutral = 'hover:bg-gray-50';
+  const highlight = 'ring-2 ring-blue-500 bg-blue-50';          // ← NEW
   const wrong = 'border-rose-500 bg-rose-50';
   const right = 'border-emerald-500 bg-emerald-50';
-  const active =
-    !revealed
-      ? neutral
-      : isCorrect
-      ? right
-      : chosen
-      ? wrong
-      : 'opacity-70';
+
+  const active = !revealed
+    ? chosen
+      ? highlight                                          // ← NEW
+      : neutral
+    : isCorrect
+    ? right
+    : chosen
+    ? wrong
+    : 'opacity-70';
 
   return (
     <div className="space-y-1">
@@ -57,9 +60,7 @@ export default function OptionCard({
       </button>
 
       {showExplain && (
-        <div className="ml-3 mb-3 text-sm text-gray-700">
-          {explanation}
-        </div>
+        <div className="ml-3 mb-3 text-sm text-gray-700">{explanation}</div>
       )}
     </div>
   );
