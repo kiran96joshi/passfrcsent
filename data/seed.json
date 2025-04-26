@@ -1,0 +1,67 @@
+[
+  {
+    "topic": "Otology",
+    "stem": "A 36-year-old male has had a subtotal petrosectomy with blind-sac closure for extensive recurrent cholesteatoma. He now has unilateral mixed hearing loss (BC 50 dB) and wants rapid rehabilitation for single-sided deafness. Which option is optimal?",
+    "options": [
+      "Conventional air-conduction hearing aid",
+      "Ossiculoplasty",
+      "Percutaneous bone-anchored hearing implant",
+      "OSIA transcutaneous bone-conduction implant",
+      "Bonebridge transcutaneous bone-conduction implant"
+    ],
+    "answer": 2,
+    "explanation": "Blind-sac closure removes the ear canal, making air-conduction aids ineffective. A Bonebridge needs BC ≤ 45 dB, and an OSIA produces MRI artefact that would obscure cholesteatoma surveillance. A percutaneous BAHA gives immediate binaural stimulation and creates minimal MRI shadow, so it is preferred."
+  },
+  {
+    "topic": "Head and Neck",
+    "stem": "A patient with T1b N0 M0 glottic squamous-cell carcinoma is discussed at the MDT. What management is most likely to be recommended?",
+    "options": [
+      "Surgery followed by post-operative radiotherapy",
+      "Chemotherapy alone",
+      "Primary radiotherapy",
+      "Concurrent chemoradiotherapy",
+      "Primary surgery with neck dissection"
+    ],
+    "answer": 2,
+    "explanation": "T1 (stage I) glottic cancers are usually treated with single-modality therapy. Primary radiotherapy offers excellent local control and voice outcomes. Neck dissection or systemic therapy is unnecessary at this stage."
+  },
+  {
+    "topic": "Paediatrics",
+    "stem": "A 1-year-old boy is admitted with acute otitis media and fever. What is typically the first clinical sign of intracranial infection in such children?",
+    "options": [
+      "Neck stiffness",
+      "Vomiting",
+      "Irritability",
+      "Seizure",
+      "Papilloedema"
+    ],
+    "answer": 2,
+    "explanation": "Intracranial complications often begin with non-specific features. In infants the earliest clue is usually persistent irritability rather than meningism or focal signs."
+  },
+  {
+    "topic": "Rhinology and Facial Plastics",
+    "stem": "A 39-year-old woman presents with nasal obstruction, crusting and an anterior septal perforation. What is currently the most common aetiology of septal perforation in the UK?",
+    "options": [
+      "Septal surgery",
+      "Cocaine misuse",
+      "Digital/local trauma",
+      "Granulomatous disease",
+      "Malignancy"
+    ],
+    "answer": 2,
+    "explanation": "Despite rising cocaine use and postoperative perforations, habitual digital trauma (nose-picking or instrumentation) remains the commonest cause of septal defects in UK practice."
+  },
+  {
+    "topic": "EBM & Statistics",
+    "stem": "What is the maximum safe dose of lidocaine that can be administered to an 80 kg man?",
+    "options": [
+      "240 mg",
+      "250 mg",
+      "320 mg",
+      "350 mg",
+      "560 mg"
+    ],
+    "answer": 0,
+    "explanation": "Recommended maximum plain-lidocaine dose is 3 mg · kg⁻¹. 3 × 80 kg = 240 mg."
+  }
+]
