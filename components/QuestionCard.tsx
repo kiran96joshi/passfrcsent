@@ -14,28 +14,16 @@ export default function QuestionCard({ question, selected, onSelect }: Props) {
 
       <ul className="space-y-2">
         {question.options.map((opt, idx) => {
-          const isChosen  = selected === idx;
-          const isCorrect = idx === question.answer;
-
-          const base    = 'w-full text-left px-4 py-2 rounded border transition';
-          const idle    = 'hover:bg-gray-50';
-          const correct = 'bg-emerald-50 border-emerald-600 text-emerald-800';
-          const wrong   = 'bg-rose-50 border-rose-600 text-rose-800';
-
-          const style =
-            selected === null
-              ? idle
-              : isCorrect
-              ? correct
-              : isChosen
-              ? wrong
-              : 'opacity-60';
+          const base =
+            'w-full text-left px-4 py-2 rounded border transition';
+          const hover = 'hover:bg-gray-50';
+          const chosen =
+            idx === selected ? 'ring-2 ring-blue-500' : '';
 
           return (
             <li key={idx}>
               <button
-                className={`${base} ${style}`}
-                disabled={selected !== null}
+                className={`${base} ${hover} ${chosen}`}
                 onClick={() => onSelect(idx)}
               >
                 {opt}
@@ -44,15 +32,6 @@ export default function QuestionCard({ question, selected, onSelect }: Props) {
           );
         })}
       </ul>
-
-      {selected !== null && (
-        <p className="mt-4 text-sm text-gray-600">
-          <span className="font-medium">
-            {selected === question.answer ? 'Correct! ' : 'Explanation: '}
-          </span>
-          {question.explanation}
-        </p>
-      )}
     </div>
   );
 }
