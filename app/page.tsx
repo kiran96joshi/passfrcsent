@@ -70,7 +70,7 @@ export default function Practice() {
 
         {index < total - 1 && (
           <button
-            className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-40"
+            className="px-4 py-2 rounded bg-blue-600 text-white"
             onClick={() => setIndex((i) => i + 1)}
           >
             Next →
