@@ -44,54 +44,54 @@ export default function Practice() {
       </section>
     );
   }
+// …earlier code above is unchanged …
 
-  const q = demoQuestions[index];
-  const canGoBack  = index > 0;
-  const canGoNext  = index < total - 1;
-  const allAnswered = answers.every((a) => a !== null);
+const q = demoQuestions[index];
 
-  return (
-    <section className="max-w-2xl mx-auto py-16 px-4 space-y-6">
-      <div className="text-sm text-gray-500">
-        Question {index + 1} / {total}
-      </div>
+return (
+  <section className="max-w-2xl mx-auto py-16 px-4 space-y-6">
+    <div className="text-sm text-gray-500">
+      Question {index + 1} / {total}
+    </div>
 
-      <QuestionCard
-        key={q.id}               // reset component state when index changes
-        question={q}
-        selected={answers[index]}
-        onSelect={selectAnswer}
-      />
+    {/* ---- FIXED: no onNext prop, uses selected/onSelect ---- */}
+    <QuestionCard
+      key={q.id}
+      question={q}
+      selected={answers[index]}
+      onSelect={selectAnswer}
+    />
 
-      <div className="flex justify-between pt-4">
+    <div className="flex justify-between pt-4">
+      <button
+        className="px-4 py-2 rounded bg-gray-100 disabled:opacity-40"
+        disabled={index === 0}
+        onClick={() => setIndex((i) => i - 1)}
+      >
+        ← Back
+      </button>
+
+      {index < total - 1 && (
         <button
-          className="px-4 py-2 rounded bg-gray-100 disabled:opacity-40"
-          disabled={!canGoBack}
-          onClick={() => setIndex((i) => i - 1)}
+          className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-40"
+          disabled={index >= total - 1}
+          onClick={() => setIndex((i) => i + 1)}
         >
-          ← Back
+          Next →
         </button>
+      )}
 
-        {index < total - 1 && (
-          <button
-            className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-40"
-            disabled={!canGoNext}
-            onClick={() => setIndex((i) => i + 1)}
-          >
-            Next →
-          </button>
-        )}
-
-        {index === total - 1 && (
-          <button
-            className="px-4 py-2 rounded bg-emerald-600 text-white disabled:opacity-40"
-            disabled={!allAnswered}
-            onClick={() => setSubmitted(true)}
-          >
-            Submit
-          </button>
-        )}
-      </div>
-    </section>
-  );
+      {index === total - 1 && (
+        <button
+          className="px-4 py-2 rounded bg-emerald-600 text-white disabled:opacity-40"
+          disabled={answers.some((a) => a === null)}
+          onClick={() => setSubmitted(true)}
+        >
+          Submit
+        </button>
+      )}
+    </div>
+  </section>
+);
 }
+
