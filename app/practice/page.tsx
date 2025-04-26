@@ -40,17 +40,17 @@ export default function Practice() {
 
   const handleMainButton = () => {
     if (!checked[index]) {
-      // Check answer
+      /* 1) Check answer */
       setChecked((prev) => {
         const arr = [...prev];
         arr[index] = true;
         return arr;
       });
     } else if (index < total - 1) {
-      // Next question
+      /* 2) Next question */
       setIndex((i) => i + 1);
     } else {
-      // Finish
+      /* 3) Finish */
       setFinished(true);
     }
   };
@@ -73,6 +73,7 @@ export default function Practice() {
           You answered {correctCount} of {total} questions correctly (
           {Math.round((correctCount / total) * 100)}%).
         </p>
+
         <button
           className="px-6 py-3 rounded bg-blue-600 text-white"
           onClick={() => {
@@ -101,11 +102,7 @@ export default function Practice() {
         goNext={() => setIndex((i) => Math.min(total - 1, i + 1))}
       />
 
-      <section
-        className={`flex max-w-7xl mx-auto gap-6 p-4 mt-4 ${
-          sidebarOpen ? '' : 'lg:pr-64'
-        }`}
-      >
+      <section className="max-w-7xl mx-auto p-4 mt-4 flex flex-col lg:flex-row gap-6">
         {/* main column */}
         <div className="flex-1 space-y-6">
           <QuestionCard
@@ -128,7 +125,7 @@ export default function Practice() {
           </div>
         </div>
 
-        {/* sidebar */}
+        {/* sidebar (right on desktop, slides below on mobile) */}
         {sidebarOpen && (
           <Sidebar
             answers={answers}
