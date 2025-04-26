@@ -89,9 +89,10 @@ export default function Practice() {
 
         {/* sidebar */}
         <Sidebar
-          answers={answers}
-          correctAnswers={demoQuestions.map((d) => d.answer)}
-        />
+  answers={answers}
+  correctAnswers={demoQuestions.map((d) => d.answer)}
+  checked={checked}                /* NEW */
+/>
       </section>
     </>
   );
