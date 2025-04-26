@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <nav className="sticky top-0 bg-white shadow-sm z-10">
           <div className="max-w-5xl mx-auto px-4 py-2 flex justify-between">
             <Link href="/" className="font-bold text-lg text-blue-700">
-              PassFRCsent
+              PassFRCSENT
             </Link>
             <div className="space-x-4">
               <Link href="/practice" className="hover:text-blue-600">
@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </nav>
         <main className="flex-1">{children}</main>
         <footer className="bg-gray-50 py-6 text-center text-sm text-gray-500">
-          © {new Date().getFullYear()} PassFRCsent · Not affiliated with ICBSE
+          © {new Date().getFullYear()} PassFRCSENT · Not affiliated with ICBSE
         </footer>
       </body>
     </html>
