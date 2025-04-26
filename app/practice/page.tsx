@@ -34,7 +34,7 @@ export default function Practice() {
       <div className="mb-6 text-sm text-gray-500">
         Question {index + 1} / {demoQuestions.length}
       </div>
-      <QuestionCard question={q} onNext={next} />
+      <QuestionCard key={q.id} question={q} onNext={next} />
     </section>
   );
 }

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 export const metadata = {
-  title: 'PassFRCsent',
+  title: 'PassFRCSENT',
   description: 'Question-bank for the FRCS (ORL-HNS) exam',
 };
 
