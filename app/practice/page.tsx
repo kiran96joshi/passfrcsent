@@ -8,6 +8,7 @@ import Sidebar from '@/components/Sidebar';
 export default function Practice() {
   const total = demoQuestions.length;
 
+  /* ---------- state ---------- */
   const [index, setIndex]     = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     Array(total).fill(null)
@@ -25,6 +26,7 @@ export default function Practice() {
     setShowExplain(true);
   };
 
+  /* ---------- live score ---------- */
   const correctCount = answers.filter(
     (a, i) => a !== null && a === demoQuestions[i].answer
   ).length;
@@ -33,6 +35,7 @@ export default function Practice() {
     ? Math.round((correctCount / answeredCount) * 100)
     : 0;
 
+  /* ---------- JSX ---------- */
   return (
     <>
       <ExamToolbar
@@ -44,7 +47,7 @@ export default function Practice() {
       />
 
       <section className="flex max-w-7xl mx-auto gap-6 p-4 mt-4">
-        {/* ----- main column ----- */}
+        {/* main column */}
         <div className="flex-1 space-y-6">
           <QuestionCard
             key={q.id}
@@ -54,19 +57,22 @@ export default function Practice() {
           />
 
           {showExplain && answers[index] !== null && (
-            <div className="space-y-4">
-              <div className="bg-emerald-50 border border-emerald-400 rounded p-3 text-sm">
+            <div className="space-y-4 text-sm">
+              <div className="bg-emerald-50 border border-emerald-400 rounded p-3">
                 <strong>{q.options[q.answer]}</strong> is secreted by adipose
                 tissue.
               </div>
 
-              <p className="text-sm">
-                <strong className="text-emerald-600">{q.options[q.answer]}</strong>{' '}
+              <p>
+                <strong className="text-emerald-600">
+                  {q.options[q.answer]}
+                </strong>{' '}
                 is the correct option, as it is secreted by adipose tissue…
               </p>
-              <p className="text-sm">
+              <p>
                 <strong className="text-rose-600">
-                  {q.options[answers[index] as number]}
+                  {answers[index] !== null &&
+                    q.options[answers[index] as number]}
                 </strong>{' '}
                 is incorrect because&nbsp;…
               </p>
@@ -74,7 +80,7 @@ export default function Practice() {
           )}
         </div>
 
-        {/* ----- sidebar ----- */}
+        {/* sidebar */}
         <Sidebar
           answers={answers}
           correctAnswers={demoQuestions.map((d) => d.answer)}
