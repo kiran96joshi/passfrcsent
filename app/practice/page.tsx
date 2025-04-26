@@ -8,34 +8,52 @@ import Sidebar from '@/components/Sidebar';
 export default function Practice() {
   const total = demoQuestions.length;
 
-  /* ---------- state ---------- */
+  /* state ------------------------------------------------------------ */
   const [index, setIndex]     = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(() =>
     Array(total).fill(null)
   );
-  const [showExplain, setShowExplain] = useState(false);
+  const [checked, setChecked] = useState<boolean[]>(
+    Array(total).fill(false)
+  );
 
   const q = demoQuestions[index];
 
-  const selectAnswer = (choice: number) => {
+  /* score ------------------------------------------------------------ */
+  const correctCount = checked.filter(
+    (_, i) => checked[i] && answers[i] === demoQuestions[i].answer
+  ).length;
+  const answeredCount = checked.filter(Boolean).length;
+  const percent = answeredCount
+    ? Math.round((correctCount / answeredCount) * 100)
+    : 0;
+
+  /* handlers --------------------------------------------------------- */
+  const selectAnswer = (choice: number) =>
     setAnswers((prev) => {
       const arr = [...prev];
       arr[index] = choice;
       return arr;
     });
-    setShowExplain(true);
+
+  const handleButton = () => {
+    if (!checked[index]) {
+      // first click = mark answers
+      setChecked((prev) => {
+        const arr = [...prev];
+        arr[index] = true;
+        return arr;
+      });
+    } else {
+      // second click = go to next question
+      setIndex((i) => Math.min(total - 1, i + 1));
+    }
   };
 
-  /* ---------- live score ---------- */
-  const correctCount = answers.filter(
-    (a, i) => a !== null && a === demoQuestions[i].answer
-  ).length;
-  const answeredCount = answers.filter((a) => a !== null).length;
-  const percent = answeredCount
-    ? Math.round((correctCount / answeredCount) * 100)
-    : 0;
+  const buttonDisabled = answers[index] === null && !checked[index];
+  const buttonLabel = checked[index] ? 'Next question' : 'Check answer';
 
-  /* ---------- JSX ---------- */
+  /* JSX -------------------------------------------------------------- */
   return (
     <>
       <ExamToolbar
@@ -53,31 +71,20 @@ export default function Practice() {
             key={q.id}
             question={q}
             selected={answers[index]}
+            revealed={checked[index]}      /* NEW */
             onSelect={selectAnswer}
+            disabled={checked[index]}
           />
 
-          {showExplain && answers[index] !== null && (
-            <div className="space-y-4 text-sm">
-              <div className="bg-emerald-50 border border-emerald-400 rounded p-3">
-                <strong>{q.options[q.answer]}</strong> is secreted by adipose
-                tissue.
-              </div>
-
-              <p>
-                <strong className="text-emerald-600">
-                  {q.options[q.answer]}
-                </strong>{' '}
-                is the correct option, as it is secreted by adipose tissue…
-              </p>
-              <p>
-                <strong className="text-rose-600">
-                  {answers[index] !== null &&
-                    q.options[answers[index] as number]}
-                </strong>{' '}
-                is incorrect because&nbsp;…
-              </p>
-            </div>
-          )}
+          <div className="flex justify-end">
+            <button
+              className="px-6 py-2 rounded bg-blue-600 text-white disabled:opacity-40"
+              disabled={buttonDisabled}
+              onClick={handleButton}
+            >
+              {buttonLabel}
+            </button>
+          </div>
         </div>
 
         {/* sidebar */}

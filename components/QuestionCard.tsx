@@ -1,36 +1,39 @@
 'use client';
 import type { Question } from '@/data/demo-questions';
+import OptionCard from '@/components/OptionCard';
 
-type Props = {
+export default function QuestionCard({
+  question,
+  selected,
+  revealed,          // ← NEW
+  onSelect,
+  disabled,
+}: {
   question: Question;
   selected: number | null;
+  revealed: boolean; // ← NEW
   onSelect: (choice: number) => void;
-};
-
-export default function QuestionCard({ question, selected, onSelect }: Props) {
+  disabled: boolean;
+}) {
   return (
-    <div className="border rounded-xl shadow p-6 bg-white">
-      <h3 className="font-medium mb-4">{question.stem}</h3>
+    <div className="space-y-6">
+      <p className="font-medium">{question.stem}</p>
 
-      <ul className="space-y-2">
-        {question.options.map((opt, idx) => {
-          const base =
-            'w-full text-left px-4 py-2 rounded border transition';
-          const hover = 'hover:bg-gray-50';
-          const chosen =
-            idx === selected ? 'ring-2 ring-blue-500' : '';
-
-          return (
-            <li key={idx}>
-              <button
-                className={`${base} ${hover} ${chosen}`}
-                onClick={() => onSelect(idx)}
-              >
-                {opt}
-              </button>
-            </li>
-          );
-        })}
+      <ul className="space-y-3">
+        {question.options.map((opt, idx) => (
+          <li key={idx}>
+            <OptionCard
+              label={opt}
+              index={idx}
+              selected={selected}
+              correct={question.answer}
+              explanation={question.explanation}
+              disabled={disabled}
+              revealed={revealed}   // ← NEW
+              onSelect={onSelect}
+            />
+          </li>
+        ))}
       </ul>
     </div>
   );
