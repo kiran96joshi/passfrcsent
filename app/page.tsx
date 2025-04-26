@@ -1,18 +1,97 @@
-import Link from 'next/link';
+'use client';
+import { useState } from 'react';
+import { demoQuestions } from '@/data/demo-questions';
+import QuestionCard from '@/components/QuestionCard';
 
-export default function Home() {
+export default function Practice() {
+  const total = demoQuestions.length;
+
+  const [index, setIndex]       = useState(0);
+  const [answers, setAnswers]   = useState<(number | null)[]>(() =>
+    Array(total).fill(null)
+  );
+  const [submitted, setSubmitted] = useState(false);
+
+  // called by QuestionCard
+  const selectAnswer = (choice: number) =>
+    setAnswers((prev) => {
+      const next = [...prev];
+      next[index] = choice;
+      return next;
+    });
+
+  const score = answers.filter(
+    (ans, i) => ans === demoQuestions[i].answer
+  ).length;
+
+  if (submitted) {
+    return (
+      <section className="max-w-md mx-auto py-24 text-center">
+        <h2 className="text-2xl font-semibold mb-2">Results</h2>
+        <p className="mb-6">
+          You scored {score} / {total}
+        </p>
+        <button
+          className="px-4 py-2 rounded bg-blue-600 text-white"
+          onClick={() => {
+            setIndex(0);
+            setAnswers(Array(total).fill(null));
+            setSubmitted(false);
+          }}
+        >
+          Start Again
+        </button>
+      </section>
+    );
+  }
+
+  const q = demoQuestions[index];
+  const canGoBack  = index > 0;
+  const canGoNext  = index < total - 1;
+  const allAnswered = answers.every((a) => a !== null);
+
   return (
-    <section className="text-center py-24 bg-gradient-to-br from-blue-600 to-blue-800 text-white">
-      <h1 className="text-4xl font-semibold mb-4">PassFRCSENT</h1>
-      <p className="mb-8 text-lg">
-        Smart revision questions, timed mocks and analytics for the FRCS&nbsp;(ORL-HNS).
-      </p>
-      <Link
-        href="/practice"
-        className="bg-white text-blue-700 px-6 py-3 rounded shadow hover:scale-105 transition"
-      >
-        Try a Demo Block
-      </Link>
+    <section className="max-w-2xl mx-auto py-16 px-4 space-y-6">
+      <div className="text-sm text-gray-500">
+        Question {index + 1} / {total}
+      </div>
+
+      <QuestionCard
+        key={q.id}               // reset component state when index changes
+        question={q}
+        selected={answers[index]}
+        onSelect={selectAnswer}
+      />
+
+      <div className="flex justify-between pt-4">
+        <button
+          className="px-4 py-2 rounded bg-gray-100 disabled:opacity-40"
+          disabled={!canGoBack}
+          onClick={() => setIndex((i) => i - 1)}
+        >
+          ← Back
+        </button>
+
+        {index < total - 1 && (
+          <button
+            className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-40"
+            disabled={!canGoNext}
+            onClick={() => setIndex((i) => i + 1)}
+          >
+            Next →
+          </button>
+        )}
+
+        {index === total - 1 && (
+          <button
+            className="px-4 py-2 rounded bg-emerald-600 text-white disabled:opacity-40"
+            disabled={!allAnswered}
+            onClick={() => setSubmitted(true)}
+          >
+            Submit
+          </button>
+        )}
+      </div>
     </section>
   );
 }
