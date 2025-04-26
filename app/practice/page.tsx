@@ -1,40 +1,92 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
 import { demoQuestions } from '@/data/demo-questions';
 import QuestionCard from '@/components/QuestionCard';
 
 export default function Practice() {
-  const [index, setIndex] = useState(0);
-  const [score, setScore] = useState(0);
+  const total = demoQuestions.length;
 
-  const next = (correct: boolean) => {
-    if (correct) setScore((s) => s + 1);
-    setIndex((i) => i + 1);
-  };
+  const [index, setIndex]     = useState(0);
+  const [answers, setAnswers] = useState<(number | null)[]>(() =>
+    Array(total).fill(null)
+  );
+  const [submitted, setSubmitted] = useState(false);
 
-  if (index >= demoQuestions.length)
+  const selectAnswer = (choice: number) =>
+    setAnswers((prev) => {
+      const arr = [...prev];
+      arr[index] = choice;
+      return arr;
+    });
+
+  const score = answers.filter(
+    (a, i) => a === demoQuestions[i].answer
+  ).length;
+
+  if (submitted) {
     return (
       <section className="max-w-md mx-auto py-24 text-center">
-        <h2 className="text-2xl font-semibold mb-2">Finished!</h2>
+        <h2 className="text-2xl font-semibold mb-2">Results</h2>
         <p className="mb-6">
-          You scored {score} / {demoQuestions.length}
+          You scored {score} / {total}
         </p>
-        <a
-          href="/practice"
+        <button
           className="px-4 py-2 rounded bg-blue-600 text-white"
+          onClick={() => {
+            setIndex(0);
+            setAnswers(Array(total).fill(null));
+            setSubmitted(false);
+          }}
         >
-          Try Again
-        </a>
+          Start Again
+        </button>
       </section>
     );
+  }
 
   const q = demoQuestions[index];
+
   return (
-    <section className="max-w-2xl mx-auto py-16 px-4">
-      <div className="mb-6 text-sm text-gray-500">
-        Question {index + 1} / {demoQuestions.length}
+    <section className="max-w-2xl mx-auto py-16 px-4 space-y-6">
+      <div className="text-sm text-gray-500">
+        Question {index + 1} / {total}
       </div>
-      <QuestionCard key={q.id} question={q} onNext={next} />
+
+      <QuestionCard
+        key={q.id}
+        question={q}
+        selected={answers[index]}
+        onSelect={selectAnswer}
+      />
+
+      <div className="flex justify-between pt-4">
+        <button
+          className="px-4 py-2 rounded bg-gray-100 disabled:opacity-40"
+          disabled={index === 0}
+          onClick={() => setIndex((i) => i - 1)}
+        >
+          ← Back
+        </button>
+
+        {index < total - 1 && (
+          <button
+            className="px-4 py-2 rounded bg-blue-600 text-white"
+            onClick={() => setIndex((i) => i + 1)}
+          >
+            Next →
+          </button>
+        )}
+
+        {index === total - 1 && (
+          <button
+            className="px-4 py-2 rounded bg-emerald-600 text-white disabled:opacity-40"
+            disabled={answers.some((a) => a === null)}
+            onClick={() => setSubmitted(true)}
+          >
+            Submit
+          </button>
+        )}
+      </div>
     </section>
   );
 }
