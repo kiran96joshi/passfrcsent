@@ -1,4 +1,4 @@
-# PassFRCsent
+# PassFRCSENT
 
 Minimal Next.js 15 + TailwindCSS question‑bank starter for the FRCS (ORL‑HNS) exam.
 
