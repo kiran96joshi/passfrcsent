@@ -5,12 +5,16 @@ export default function ExamToolbar({
   index,
   total,
   percent,
+  sidebarOpen,
+  toggleSidebar,
   goPrev,
   goNext,
 }: {
   index: number;
   total: number;
   percent: number;
+  sidebarOpen: boolean;
+  toggleSidebar: () => void;
   goPrev: () => void;
   goNext: () => void;
 }) {
@@ -25,22 +29,31 @@ export default function ExamToolbar({
         ←
       </button>
 
-      {/* centre: counter + flag */}
-      <div className="flex items-center gap-3 text-sm">
+      {/* centre */}
+      <div className="flex items-center gap-3 text-sm select-none">
         <span>
-          Question {index + 1} of {total}
+          Question {index + 1} / {total}
         </span>
-        <button
-          title="Flag for review"
-          className="text-gray-400 hover:text-red-600"
-        >
+        <button title="Flag" className="text-gray-400 hover:text-red-600">
           🚩
         </button>
       </div>
 
-      {/* right: score % and next */}
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-gray-500">Score: {percent}%</span>
+      {/* right section */}
+      <div className="flex items-center gap-4">
+        {/* score */}
+        <span className="text-sm text-gray-500">Score&nbsp;{percent}%</span>
+
+        {/* sidebar toggle */}
+        <button
+          onClick={toggleSidebar}
+          title="Toggle sidebar"
+          className="text-gray-600 hover:text-gray-800 focus:outline-none"
+        >
+          {sidebarOpen ? '◂' : '▸'}
+        </button>
+
+        {/* next */}
         <button
           onClick={goNext}
           className="p-1 disabled:opacity-40"

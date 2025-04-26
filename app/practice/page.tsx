@@ -8,18 +8,20 @@ import Sidebar from '@/components/Sidebar';
 export default function Practice() {
   const total = demoQuestions.length;
 
-  /* state ------------------------------------------------------------ */
+  /* ---------- state ---------- */
   const [index, setIndex]     = useState(0);
-  const [answers, setAnswers] = useState<(number | null)[]>(() =>
+  const [answers, setAnswers] = useState<(number | null)[]>(
     Array(total).fill(null)
   );
   const [checked, setChecked] = useState<boolean[]>(
     Array(total).fill(false)
   );
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [finished, setFinished] = useState(false);
 
   const q = demoQuestions[index];
 
-  /* score ------------------------------------------------------------ */
+  /* ---------- score ---------- */
   const correctCount = checked.filter(
     (_, i) => checked[i] && answers[i] === demoQuestions[i].answer
   ).length;
@@ -28,7 +30,7 @@ export default function Practice() {
     ? Math.round((correctCount / answeredCount) * 100)
     : 0;
 
-  /* handlers --------------------------------------------------------- */
+  /* ---------- handlers ---------- */
   const selectAnswer = (choice: number) =>
     setAnswers((prev) => {
       const arr = [...prev];
@@ -36,42 +38,81 @@ export default function Practice() {
       return arr;
     });
 
-  const handleButton = () => {
+  const handleMainButton = () => {
     if (!checked[index]) {
-      // first click = mark answers
+      // Check answer
       setChecked((prev) => {
         const arr = [...prev];
         arr[index] = true;
         return arr;
       });
+    } else if (index < total - 1) {
+      // Next question
+      setIndex((i) => i + 1);
     } else {
-      // second click = go to next question
-      setIndex((i) => Math.min(total - 1, i + 1));
+      // Finish
+      setFinished(true);
     }
   };
 
-  const buttonDisabled = answers[index] === null && !checked[index];
-  const buttonLabel = checked[index] ? 'Next question' : 'Check answer';
+  const buttonLabel = !checked[index]
+    ? 'Check answer'
+    : index < total - 1
+    ? 'Next question'
+    : 'Finish';
 
-  /* JSX -------------------------------------------------------------- */
+  const buttonDisabled =
+    (!checked[index] && answers[index] === null) || finished;
+
+  /* ---------- FINISH PAGE ---------- */
+  if (finished) {
+    return (
+      <section className="max-w-xl mx-auto py-24 px-4 space-y-8 text-center">
+        <h1 className="text-3xl font-semibold">Well done!</h1>
+        <p className="text-lg">
+          You answered {correctCount} of {total} questions correctly (
+          {Math.round((correctCount / total) * 100)}%).
+        </p>
+        <button
+          className="px-6 py-3 rounded bg-blue-600 text-white"
+          onClick={() => {
+            setIndex(0);
+            setAnswers(Array(total).fill(null));
+            setChecked(Array(total).fill(false));
+            setFinished(false);
+          }}
+        >
+          Restart
+        </button>
+      </section>
+    );
+  }
+
+  /* ---------- MAIN PAGE ---------- */
   return (
     <>
       <ExamToolbar
         index={index}
         total={total}
         percent={percent}
+        sidebarOpen={sidebarOpen}
+        toggleSidebar={() => setSidebarOpen((s) => !s)}
         goPrev={() => setIndex((i) => Math.max(0, i - 1))}
         goNext={() => setIndex((i) => Math.min(total - 1, i + 1))}
       />
 
-      <section className="flex max-w-7xl mx-auto gap-6 p-4 mt-4">
+      <section
+        className={`flex max-w-7xl mx-auto gap-6 p-4 mt-4 ${
+          sidebarOpen ? '' : 'lg:pr-64'
+        }`}
+      >
         {/* main column */}
         <div className="flex-1 space-y-6">
           <QuestionCard
             key={q.id}
             question={q}
             selected={answers[index]}
-            revealed={checked[index]}      /* NEW */
+            revealed={checked[index]}
             onSelect={selectAnswer}
             disabled={checked[index]}
           />
@@ -80,7 +121,7 @@ export default function Practice() {
             <button
               className="px-6 py-2 rounded bg-blue-600 text-white disabled:opacity-40"
               disabled={buttonDisabled}
-              onClick={handleButton}
+              onClick={handleMainButton}
             >
               {buttonLabel}
             </button>
@@ -88,11 +129,13 @@ export default function Practice() {
         </div>
 
         {/* sidebar */}
-        <Sidebar
-  answers={answers}
-  correctAnswers={demoQuestions.map((d) => d.answer)}
-  checked={checked}                /* NEW */
-/>
+        {sidebarOpen && (
+          <Sidebar
+            answers={answers}
+            correctAnswers={demoQuestions.map((d) => d.answer)}
+            checked={checked}
+          />
+        )}
       </section>
     </>
   );
