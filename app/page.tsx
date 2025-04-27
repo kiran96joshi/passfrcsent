@@ -3,8 +3,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useUser } from '@/lib/useUser';
 
 export default function Home() {
+  const user = useUser();
   /* FAQ accordion state */
   const [open, setOpen] = useState<number | null>(null);
   const toggle = (i: number) =>
@@ -36,13 +38,13 @@ export default function Home() {
             Question&nbsp;bank → sign&nbsp;in required
           </Link>
           {user && (
-+         <Link
-+           href="/dashboard"
-+           className="px-8 py-3 rounded bg-green-600 text-white text-center hover:bg-green-700"
-+         >
-+           Go to Dashboard
-+         </Link>
-+       )}
+         <Link
+           href="/dashboard"
+           className="px-8 py-3 rounded bg-green-600 text-white text-center hover:bg-green-700"
+         >
+           Go to Dashboard
+         </Link>
+       )}
         </div>
       </section>
 

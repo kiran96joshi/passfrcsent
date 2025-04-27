@@ -25,6 +25,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Link href="/bank" className="hover:text-blue-600">
                 Question&nbsp;Bank
               </Link>
+              <Link href="/dashboard" className="hover:text-blue-600">
+                Dashboard
+              </Link>
               {/* leave the deploy link or remove if not needed */}
               <a
                 href="https://vercel.com"
