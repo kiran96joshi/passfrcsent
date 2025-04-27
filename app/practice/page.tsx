@@ -1,13 +1,13 @@
-/* app/practice/page.tsx */
 'use client';
+export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import supabase from '@/lib/supabase';
 
 import QuestionCard from '@/components/QuestionCard';
-import ExamToolbar  from '@/components/ExamToolbar';
-import Sidebar      from '@/components/Sidebar';
+import ExamToolbar from '@/components/ExamToolbar';
+import Sidebar from '@/components/Sidebar';
 
 export default function Practice() {
   /* ------------------------------------------------------------- */
