@@ -2,9 +2,18 @@
 
 import Link from 'next/link'
 import { useUser } from '@/lib/useUser'
+import { supabaseBrowser } from '@/lib/supabaseBrowser'
 
 export default function NavBar() {
   const user = useUser()
+
+  const handleLogout = async () => {
+    if (confirm('Are you sure you want to log out?')) {
+      await supabaseBrowser.auth.signOut()
+      // Redirect back to home after logging out
+      window.location.href = '/'
+    }
+  }
 
   return (
     <nav className="sticky top-0 bg-white shadow-sm z-10">
@@ -15,9 +24,9 @@ export default function NavBar() {
         </Link>
 
         <div className="flex items-center space-x-4">
-          {/* Bank */}
+          {/* Question Bank */}
           <Link href="/bank" className="hover:text-blue-600">
-            Question Bank
+            Question&nbsp;Bank
           </Link>
 
           {/* Dashboard */}
@@ -25,8 +34,15 @@ export default function NavBar() {
             Dashboard
           </Link>
 
-          {/* Login button (only when NOT logged in) */}
-          {!user && (
+          {/* Login or Log out */}
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Log out
+            </button>
+          ) : (
             <Link
               href="/login"
               className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
