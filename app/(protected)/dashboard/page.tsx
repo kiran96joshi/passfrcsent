@@ -78,12 +78,15 @@ export default function DashboardPage() {
         <p className="text-gray-600">You haven’t completed any sessions yet.</p>
       )}
 
-      <Link
-        href="/bank"
-        className="block w-full text-center bg-blue-600 text-white py-3 rounded hover:bg-blue-700"
-      >
-        Start practice
-      </Link>
+      {/* ————— Button to Question Bank ————— */}
+      <div className="flex justify-center">
+        <Link
+          href="/bank"
+          className="block w-full md:w-auto bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 text-center"
+        >
+          Go to Question Bank
+        </Link>
+      </div>
     </main>
-  )
+  );
 }

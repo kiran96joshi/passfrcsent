@@ -21,13 +21,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </Link>
 
             <div className="space-x-4">
-              {/* point to /bank (protected) rather than /practice */}
-              <Link href="/bank" className="hover:text-blue-600">
-                Question&nbsp;Bank
+              {/* Demo / Practice link */}
+              <Link href="/practice" className="hover:text-blue-600">
+                Practice
               </Link>
+              {/* Dashboard (behind auth) */}
               <Link href="/dashboard" className="hover:text-blue-600">
                 Dashboard
               </Link>
+              
               {/* leave the deploy link or remove if not needed */}
               <a
                 href="https://vercel.com"

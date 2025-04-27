@@ -30,21 +30,20 @@ export default function Home() {
             Try the demo
           </Link>
 
-          {/* full bank – will be gated later */}
-          <Link
-            href="/bank"
-            className="px-8 py-3 rounded border border-blue-600 text-blue-600 text-center hover:bg-blue-50"
-          >
-            Question&nbsp;bank → sign&nbsp;in required
-          </Link>
-          {user && (
-         <Link
-           href="/dashboard"
-           className="px-8 py-3 rounded bg-green-600 text-white text-center hover:bg-green-700"
-         >
-           Go to Dashboard
-         </Link>
-       )}
+          {/* only show “Go to Dashboard” if signed in */}
+          {user ? (
+            <Link
+              href="/dashboard"
+              className="px-8 py-3 rounded bg-green-600 text-white text-center hover:bg-green-700"
+            >
+              Go to Dashboard
+            </Link>
+          ) : (
+            /* placeholder for gating – you could link to /login here */
+            <span className="px-8 py-3 rounded border border-gray-300 text-gray-400 text-center">
+              Question bank&nbsp;(sign in required)
+            </span>
+          )}
         </div>
       </section>
 
