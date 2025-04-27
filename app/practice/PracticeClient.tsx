@@ -2,12 +2,19 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import supabase from '@/lib/supabase';
+import { useUser } from '@/lib/useUser';
+import { supabaseBrowser } from '@/lib/supabaseBrowser';
 
 import QuestionCard from '@/components/QuestionCard';
 import ExamToolbar  from '@/components/ExamToolbar';
 import Sidebar      from '@/components/Sidebar';
 
 export default function PracticeClient() {
+  const user = useUser()                               // ← put this first
+  if (!user) {
+    return <p className="p-4">Please sign in to record your session.</p>
+  }
+
   /* 1. read IDs */
   const search = useSearchParams();
   const router = useRouter();
