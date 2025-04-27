@@ -1,160 +1,155 @@
-// app/practice/PracticeClient.tsx
-'use client'
+'use client';
+import { useEffect, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import supabase from '@/lib/supabase';
+import { useUser } from '@/lib/useUser';
+import { supabaseBrowser } from '@/lib/supabaseBrowser';
 
-import { useEffect, useState } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
-import { useUser } from '@/lib/useUser'
-import { supabaseBrowser } from '@/lib/supabaseBrowser'
-
-import QuestionCard from '@/components/QuestionCard'
-import ExamToolbar  from '@/components/ExamToolbar'
-import Sidebar      from '@/components/Sidebar'
+import QuestionCard from '@/components/QuestionCard';
+import ExamToolbar  from '@/components/ExamToolbar';
+import Sidebar      from '@/components/Sidebar';
 
 export default function PracticeClient() {
-  // 1) Guard: only signed-in users can practice & record
-  const user = useUser()
+  const user = useUser()                               // ← put this first
   if (!user) {
-    return <p className="p-4">Please sign in to practice.</p>
+    return <p className="p-4">Please sign in to record your session.</p>
   }
 
-  // 2) Read IDs from the URL
-  const search = useSearchParams()
-  const router = useRouter()
-  const idList = (search.get('ids') ?? '').split(',').filter(Boolean)
+  /* 1. read IDs */
+  const search = useSearchParams();
+  const router = useRouter();
+  const idList = (search.get('ids') ?? '').split(',').filter(Boolean);
 
-  // 3) Fetch questions
-  const [questions, setQuestions] = useState<any[]>([])
-  const [loading,    setLoading]   = useState(true)
+  /* 2. fetch questions */
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [loading,    setLoading]   = useState(true);
 
   useEffect(() => {
-    if (!idList.length) {
-      router.replace('/bank')
-      return
-    }
-    supabaseBrowser
+    if (!idList.length) return router.replace('/bank');
+    supabase
       .from('questions')
       .select('*')
       .in('id', idList)
       .then(({ data, error }) => {
-        if (!error) setQuestions(data ?? [])
-        setLoading(false)
-      })
-  }, [idList, router])
+        if (!error) setQuestions(data ?? []);
+        setLoading(false);
+      });
+  }, [idList, router]);
 
-  // 4) Session state hooks
-  const [index,       setIndex]      = useState(0)
-  const [answers,     setAnswers]    = useState<(number|null)[]>([])
-  const [checked,     setChecked]    = useState<boolean[]>([])
-  const [sidebarOpen, setSidebarOpen]= useState(true)
-  const [finished,    setFinished]   = useState(false)
-  const [reviewMode,  setReviewMode] = useState(false)
+  /* 3. session state hooks */
+  const [index,       setIndex]      = useState(0);
+  const [answers,     setAnswers]    = useState<(number|null)[]>([]);
+  const [checked,     setChecked]    = useState<boolean[]>([]);
+  const [sidebarOpen, setSidebarOpen]= useState(true);
+  const [finished,    setFinished]   = useState(false);
+  const [reviewMode,  setReviewMode] = useState(false);
 
-  // 5) Init arrays once questions arrive
+  /* 4. init arrays */
   useEffect(() => {
-    if (!questions.length) return
-    setAnswers(Array(questions.length).fill(null))
-    setChecked(Array(questions.length).fill(false))
-  }, [questions.length])
+    if (!questions.length) return;
+    setAnswers(Array(questions.length).fill(null));
+    setChecked(Array(questions.length).fill(false));
+  }, [questions.length]);
 
-  // 6) Early-return guards
-  if (loading)           return <p className="p-4">Loading…</p>
-  if (!questions.length) return <p className="p-4">No questions found.</p>
+   /** after finishing, record session + attempts */
+ useEffect(() => {
+  if (!finished) return;
 
-  // 7) Derived values
-  const total        = questions.length
-  const q            = questions[index]
-  const readOnly     = reviewMode
-  const correctCount = checked.filter((c,i) => c && answers[i] === q.answer).length
-  const answered     = checked.filter(Boolean).length
-  const percent      = answered ? Math.round((correctCount/answered)*100) : 0
+  (async () => {
+    // 1) sessions.insert
+    const { data: sess, error: sessErr } = await supabaseBrowser
+      .from('sessions')
+      .insert({
+        user_id: user.id,
+        score: correctCount,
+        total,
+        percent,
+      })
+      .select('id')
+      .single();
 
-  // 8) Handlers
-  const selectAnswer = (choice: number) =>
-    setAnswers(a => { const x=[...a]; x[index]=choice; return x })
+    if (sessErr || !sess) {
+      console.error('Could not create session', sessErr);
+      return;
+    }
+
+    // 2) attempts.insert
+    const toInsert = questions.map((q, i) => ({
+      session_id:  sess.id,
+      question_id: q.id,
+      selected:     answers[i] ?? -1,
+      correct:      answers[i] === q.answer,
+    }));
+
+    const { error: atErr } = await supabaseBrowser
+      .from('attempts')
+      .insert(toInsert);
+
+    if (atErr) console.error('Could not save attempts', atErr);
+  })();
+}, [finished]); // run once when finished flips true
+
+  /* 5. early guards */
+  if (loading)           return <p className="p-4">Loading…</p>;
+  if (!questions.length) return <p className="p-4">No questions found.</p>;
+
+  /* 6. derived */
+  const total        = questions.length;
+  const q            = questions[index];
+  const readOnly     = reviewMode;
+  const correctCount = checked.filter((c,i) => c && answers[i]===questions[i].answer).length;
+  const answered     = checked.filter(Boolean).length;
+  const percent      = answered ? Math.round((correctCount/answered)*100) : 0;
+
+  /* 7. handlers */
+  const selectAnswer = (choice:number) =>
+    setAnswers(a=>{const x=[...a];x[index]=choice;return x});
 
   const handleMain = () => {
     if (!checked[index]) {
-      setChecked(c => { const x=[...c]; x[index]=true; return x })
-    } else if (index < total - 1) {
-      setIndex(i => i + 1)
+      setChecked(c=>{const x=[...c];x[index]=true;return x});
+    } else if (index < total-1) {
+      setIndex(i=>i+1);
     } else {
-      setFinished(true)
+      setFinished(true);
     }
-  }
+  };
 
   const restartSession = () => {
     if (confirm('Are you sure you want to restart the session?')) {
-      setIndex(0)
-      setAnswers(Array(total).fill(null))
-      setChecked(Array(total).fill(false))
-      setFinished(false)
-      setReviewMode(false)
+      setIndex(0);
+      setAnswers(Array(total).fill(null));
+      setChecked(Array(total).fill(false));
+      setFinished(false);
+      setReviewMode(false);
     }
-  }
+  };
 
   const exitReview = () => {
-    setReviewMode(false)
-    setIndex(0)
-  }
+    setReviewMode(false);
+    setIndex(0);
+  };
 
   const buttonLabel = !checked[index]
     ? 'Check answer'
-    : index < total -1
-      ? 'Next question'
-      : 'Finish'
+    : index < total-1
+    ? 'Next question'
+    : 'Finish';
 
-  const buttonDisabled = (!checked[index] && answers[index] === null) || finished
+  const buttonDisabled = (!checked[index] && answers[index]===null) || finished;
 
-  // 9) Save session + attempts when finished AND user is non-null
-  useEffect(() => {
-    if (!finished || !user) return
-
-    (async () => {
-      // Insert into sessions
-      const { data: sess, error: sessErr } = await supabaseBrowser
-        .from('sessions')
-        .insert({
-          user_id: user.id,
-          score:   correctCount,
-          total,
-          percent,
-        })
-        .select('id')
-        .single()
-
-      if (sessErr || !sess) {
-        console.error('Error inserting session:', sessErr)
-        return
-      }
-
-      // Insert each attempt
-      const toInsert = questions.map((qq, i) => ({
-        session_id:  sess.id,
-        question_id: qq.id,
-        selected:     answers[i] ?? -1,
-        correct:      answers[i] === qq.answer,
-      }))
-
-      const { error: atErr } = await supabaseBrowser
-        .from('attempts')
-        .insert(toInsert)
-
-      if (atErr) console.error('Error inserting attempts:', atErr)
-    })()
-  }, [finished, user])
-
-  // 10) Finish / summary screen
+  /* 8. summary */
   if (finished && !reviewMode) {
     return (
       <section className="max-w-xl mx-auto py-24 px-4 space-y-8 text-center">
         <h1 className="text-3xl font-semibold">Session complete!</h1>
         <p className="text-lg">
-          You answered {correctCount} of {total} correctly ({percent}%).
+          You answered {correctCount} of {total} correctly ({Math.round((correctCount/total)*100)}%).
         </p>
         <div className="flex justify-center gap-4">
           <button
             className="px-6 py-3 rounded bg-gray-200 hover:bg-gray-300"
-            onClick={() => setReviewMode(true)}
+            onClick={()=>setReviewMode(true)}
           >
             Review answers
           </button>
@@ -166,10 +161,10 @@ export default function PracticeClient() {
           </button>
         </div>
       </section>
-    )
+    );
   }
 
-  // 11) Practice / review screen
+  /* 9. practice / review */
   return (
     <>
       <ExamToolbar
@@ -177,9 +172,9 @@ export default function PracticeClient() {
         total={total}
         percent={percent}
         sidebarOpen={sidebarOpen}
-        toggleSidebar={() => setSidebarOpen(s => !s)}
-        goPrev={() => setIndex(i => Math.max(0, i - 1))}
-        goNext={() => setIndex(i => Math.min(total - 1, i + 1))}
+        toggleSidebar={()=>setSidebarOpen(s=>!s)}
+        goPrev={()=>setIndex(i=>Math.max(0,i-1))}
+        goNext={()=>setIndex(i=>Math.min(total-1,i+1))}
       />
 
       <section className="max-w-7xl mx-auto p-4 mt-4 flex flex-col lg:flex-row gap-6">
@@ -199,9 +194,9 @@ export default function PracticeClient() {
             key={q.id}
             question={q}
             selected={answers[index]}
-            revealed={checked[index] || readOnly}
-            onSelect={readOnly ? () => {} : selectAnswer}
-            disabled={checked[index] || readOnly}
+            revealed={checked[index]||readOnly}
+            onSelect={readOnly?()=>{}:selectAnswer}
+            disabled={checked[index]||readOnly}
           />
 
           {!readOnly && (
@@ -220,11 +215,13 @@ export default function PracticeClient() {
         {sidebarOpen && (
           <Sidebar
             answers={answers}
-            correctAnswers={questions.map(q => q.answer)}
+            correctAnswers={questions.map(q=>q.answer)}
             checked={checked}
           />
         )}
       </section>
     </>
-  )
+  );
+   
+  
 }
