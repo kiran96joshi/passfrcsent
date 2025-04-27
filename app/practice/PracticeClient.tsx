@@ -184,4 +184,42 @@ export default function PracticeClient() {
       </section>
     </>
   );
+    /** after finishing, record session + attempts */
+    useEffect(() => {
+      if (!finished) return;
+  
+      (async () => {
+        // 1) sessions.insert
+        const { data: sess, error: sessErr } = await supabaseBrowser
+          .from('sessions')
+          .insert({
+            user_id: user.id,
+            score: correctCount,
+            total,
+            percent,
+          })
+          .select('id')
+          .single();
+  
+        if (sessErr || !sess) {
+          console.error('Could not create session', sessErr);
+          return;
+        }
+  
+        // 2) attempts.insert
+        const toInsert = questions.map((q, i) => ({
+          session_id:  sess.id,
+          question_id: q.id,
+          selected:     answers[i] ?? -1,
+          correct:      answers[i] === q.answer,
+        }));
+  
+        const { error: atErr } = await supabaseBrowser
+          .from('attempts')
+          .insert(toInsert);
+  
+        if (atErr) console.error('Could not save attempts', atErr);
+      })();
+    }, [finished]); // run once when finished flips true
+  
 }
