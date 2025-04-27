@@ -35,10 +35,19 @@ export default function PracticeClient() {
   const total        = questions.length
   const q            = questions[index]
   const readOnly     = reviewMode
-  const correctCount = checked.filter((c,i) => c && answers[i] === q.answer).length
+  
+  // How many questions have been checked (i.e. “locked in”)
   const answered     = checked.filter(Boolean).length
-  const percent      = answered ? Math.round((correctCount/answered)*100) : 0
-
+  
+  // How many of those are correct
+  const correctCount = questions.reduce((sum, ques, i) =>
+    sum + (checked[i] && answers[i] === ques.answer ? 1 : 0)
+  , 0)
+  
+  // Percent correct *of those answered*, or 0 if none yet
+  const percent = answered > 0
+    ? Math.round((correctCount / answered) * 100)
+    : 0
   // 6) Handlers (stable definitions)
   const selectAnswer = (choice: number) =>
     setAnswers(a => { const x = [...a]; x[index] = choice; return x })
