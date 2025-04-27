@@ -15,10 +15,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-screen flex flex-col">
         {/* --------- NAV --------- */}
         <SupabaseProvider>
-          <NavBar />
-
-        {/* --------- APP --------- */}
-        <main className="flex-1">{children}</main>
+        <NavBar />
+             {/* --------- APP --------- */}
+             <main className="flex-1">{children}</main>
         </SupabaseProvider>
 
         {/* --------- FOOTER --------- */}
