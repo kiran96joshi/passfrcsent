@@ -1,47 +1,77 @@
-'use client';
-import { useState } from 'react';
-import { supabaseBrowser } from '@/lib/supabaseBrowser';
+'use client'
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [sent, setSent]   = useState(false);
+import { useState, useEffect, FormEvent } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { supabaseBrowser } from '@/lib/supabaseBrowser'
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`;
-    const { error } = await supabaseBrowser.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: redirectTo }
-    });
-    if (!error) setSent(true);
-  };
+export default function LoginPage() {
+  const router       = useRouter()
+  const searchParams = useSearchParams()
 
-  if (sent)
-    return (
-      <main className="h-screen flex items-center justify-center">
-        <p>Magic link sent! Check your inbox.</p>
-      </main>
-    );
+  // form state
+  const [email, setEmail] = useState('')
+  const [sent,  setSent]  = useState(false)
+
+  // ─── 1) Magic-link callback handler ─────────────────────────────────────────
+  useEffect(() => {
+    const accessToken  = searchParams.get('access_token')
+    const refreshToken = searchParams.get('refresh_token')
+    const errorDesc    = searchParams.get('error_description')
+
+    if (errorDesc) {
+      console.error('Magic link error:', errorDesc)
+    }
+
+    if (accessToken && refreshToken) {
+      supabaseBrowser.auth
+        .setSession({ access_token: accessToken, refresh_token: refreshToken })
+        .then(({ error }) => {
+          if (error) {
+            console.error('Error setting session:', error.message)
+          } else {
+            // session cookie is now set, redirect to dashboard
+            router.replace('/dashboard')
+          }
+        })
+    }
+  }, [searchParams, router])
+
+  // ─── 2) Send magic link ──────────────────────────────────────────────────────
+  const handleSignIn = async (e: FormEvent) => {
+    e.preventDefault()
+    const { error } = await supabaseBrowser.auth.signInWithOtp({ email })
+    if (error) {
+      console.error('Sign-in error:', error.message)
+    } else {
+      setSent(true)
+    }
+  }
 
   return (
-    <main className="h-screen flex items-center justify-center">
-      <form onSubmit={handleSignIn} className="space-y-4">
-        <h1 className="text-xl font-semibold">Sign in</h1>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 rounded w-72"
-          placeholder="you@example.com"
-          required
-        />
-        <button
-          type="submit"
-          className="block w-full bg-blue-600 text-white py-2 rounded"
-        >
-          Send magic link
-        </button>
-      </form>
+    <main className="min-h-screen flex items-center justify-center p-6">
+      {sent ? (
+        <p className="text-center text-lg">
+          Check your email for a magic link to sign in!
+        </p>
+      ) : (
+        <form onSubmit={handleSignIn} className="space-y-6 w-full max-w-sm">
+          <h1 className="text-2xl font-semibold text-center">Sign in</h1>
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            className="w-full p-3 border rounded"
+            required
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700 transition"
+          >
+            Send Magic Link
+          </button>
+        </form>
+      )}
     </main>
-  );
+  )
 }
