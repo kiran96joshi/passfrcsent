@@ -1,27 +1,23 @@
+// components/NavBar.tsx
 'use client'
 
 import Link from 'next/link'
-import { useUser } from '@/lib/useUser'
-import { supabaseBrowser } from '@/lib/supabaseBrowser'
 import { useRouter } from 'next/navigation'
+import { useUser } from '@supabase/auth-helpers-react'
+import { supabaseBrowser } from '@/lib/supabaseBrowser'
 
 export default function NavBar() {
   const user   = useUser()
   const router = useRouter()
 
   const handleLogout = async () => {
-    if (!confirm('Are you sure you want to log out?')) {
-      return
-    }
-
+    if (!confirm('Are you sure you want to log out?')) return
     const { error } = await supabaseBrowser.auth.signOut()
     if (error) {
       console.error('Logout error:', error.message)
-      return
+    } else {
+      router.push('/')
     }
-
-    // simply push back to home (SupabaseProvider → useUser() will now be null)
-    router.push('/')
   }
 
   return (
@@ -30,16 +26,9 @@ export default function NavBar() {
         <Link href="/" className="font-bold text-lg text-blue-700">
           PassFRCSENT
         </Link>
-
         <div className="flex items-center space-x-4">
-          <Link href="/bank" className="hover:text-blue-600">
-            Question&nbsp;Bank
-          </Link>
-
-          <Link href="/dashboard" className="hover:text-blue-600">
-            Dashboard
-          </Link>
-
+          <Link href="/bank"      className="hover:text-blue-600">Question Bank</Link>
+          <Link href="/dashboard" className="hover:text-blue-600">Dashboard</Link>
           {user ? (
             <button
               onClick={handleLogout}
@@ -48,12 +37,20 @@ export default function NavBar() {
               Log out
             </button>
           ) : (
-            <Link
-              href="/login"
-              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Login
-            </Link>
+            <>
+              <Link
+                href="/register"
+                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Register
+              </Link>
+              <Link
+                href="/login"
+                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Login
+              </Link>
+            </>
           )}
         </div>
       </div>
