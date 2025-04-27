@@ -8,12 +8,11 @@ export default function Login() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    const redirectTo = `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`;
     const { error } = await supabaseBrowser.auth.signInWithOtp({
       email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`
-      }
-    });    
+      options: { emailRedirectTo: redirectTo }
+    });
     if (!error) setSent(true);
   };
 
