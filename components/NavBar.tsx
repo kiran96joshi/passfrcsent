@@ -1,29 +1,26 @@
-// components/NavBar.tsx
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useUser } from '@/lib/useUser'
 import { supabaseBrowser } from '@/lib/supabaseBrowser'
+import { useRouter } from 'next/navigation'
 
 export default function NavBar() {
   const user   = useUser()
   const router = useRouter()
 
   const handleLogout = async () => {
-    if (!confirm('Are you sure you want to log out?')) return
-
-    // 1) tell Supabase to sign you out (this calls /auth/v1/logout and clears the cookie)
-    const { error } = await supabaseBrowser.auth.signOut()
-    if (error) {
-      console.error('Logout error:', error)
+    if (!confirm('Are you sure you want to log out?')) {
       return
     }
 
-    // 2) refresh Next.js session on the server
-    router.refresh()
+    const { error } = await supabaseBrowser.auth.signOut()
+    if (error) {
+      console.error('Logout error:', error.message)
+      return
+    }
 
-    // 3) finally, send the user back to home or login
+    // simply push back to home (SupabaseProvider → useUser() will now be null)
     router.push('/')
   }
 
