@@ -1,28 +1,39 @@
-// --- app/page.tsx ----------------------------------------------------
-"use client"; 
-import Link from 'next/link';
+/* --- app/page.tsx -------------------------------------------------- */
+'use client';
+
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function Home() {
-  /* simple FAQ toggle ---------------------------------------------- */
+  /* FAQ accordion state */
   const [open, setOpen] = useState<number | null>(null);
-  const toggle = (i: number) => setOpen(open === i ? null : i);
+  const toggle = (i: number) =>
+    setOpen(prev => (prev === i ? null : i));
 
   return (
-    <main className="text-gray-800">
+    <main className="min-h-screen flex flex-col">
       {/* ---------------- HERO ---------------- */}
-      <section className="bg-gradient-to-br from-blue-600 to-blue-800 text-white py-24">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold mb-4">PassFRCSENT</h1>
-          <p className="text-lg mb-8">
-            The smartest online question bank for the FRCS&nbsp;(ORL-HNS) Part 1 exam.
-          </p>
+      <section className="flex-1 flex flex-col items-center justify-center gap-8 p-6">
+        <h1 className="text-4xl font-bold">PassFRCSENT</h1>
+        <p className="text-lg text-center max-w-xl">
+          Fast, focused SBA practice for the FRCS&nbsp;(ORL-HNS) Part 1.
+        </p>
 
+        <div className="flex flex-col sm:flex-row gap-4">
+          {/* demo link */}
           <Link
-            href="/practice"
-            className="inline-block bg-white text-blue-700 px-6 py-3 rounded shadow hover:scale-105 transition"
+            href="/demo"
+            className="px-8 py-3 rounded bg-blue-600 text-white text-center hover:bg-blue-700"
           >
-            Try a free demo&nbsp;→
+            Try the demo
+          </Link>
+
+          {/* full bank – will be gated later */}
+          <Link
+            href="/bank"
+            className="px-8 py-3 rounded border border-blue-600 text-blue-600 text-center hover:bg-blue-50"
+          >
+            Question&nbsp;bank → sign&nbsp;in required
           </Link>
         </div>
       </section>
@@ -30,7 +41,9 @@ export default function Home() {
       {/* ---------------- FEATURES ---------------- */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-5xl mx-auto px-4">
-          <h2 className="text-3xl font-semibold text-center mb-12">Why revise with us?</h2>
+          <h2 className="text-3xl font-semibold text-center mb-12">
+            Why revise with us?
+          </h2>
 
           <div className="grid gap-8 md:grid-cols-3">
             {[
@@ -57,7 +70,9 @@ export default function Home() {
 
           <div className="border rounded-xl p-8 shadow-sm hover:shadow-md transition">
             <p className="text-4xl font-bold">£39</p>
-            <p className="text-sm text-gray-500 mb-6">Access until your next exam sitting</p>
+            <p className="text-sm text-gray-500 mb-6">
+              Access until your next exam sitting
+            </p>
 
             <ul className="space-y-2 text-left mb-8 text-sm">
               <li>✓ Unlimited practice & full mocks</li>
@@ -82,9 +97,18 @@ export default function Home() {
           <h2 className="text-3xl font-semibold text-center mb-10">FAQ</h2>
 
           {[
-            ['Can I try questions for free?', 'Yes – click “Try a free demo” above for an unrestricted sample.'],
-            ['Does the bank match the 2024 syllabus?', 'Every item is tagged to the current JCIE FRCS ORL-HNS curriculum and reviewed monthly.'],
-            ['Do I get updates after purchase?', 'Absolutely – new questions and features are added continuously at no extra cost.'],
+            [
+              'Can I try questions for free?',
+              'Yes – click “Try the demo” above for an unrestricted sample.',
+            ],
+            [
+              'Does the bank match the 2024 syllabus?',
+              'Every item is tagged to the current JCIE FRCS ORL-HNS curriculum and reviewed monthly.',
+            ],
+            [
+              'Do I get updates after purchase?',
+              'Absolutely – new questions and features are added continuously at no extra cost.',
+            ],
           ].map(([q, a], i) => (
             <div key={q} className="border-b py-3">
               <button
@@ -94,7 +118,9 @@ export default function Home() {
                 <span>{q}</span>
                 <span>{open === i ? '−' : '+'}</span>
               </button>
-              {open === i && <p className="mt-2 text-sm text-gray-600">{a}</p>}
+              {open === i && (
+                <p className="mt-2 text-sm text-gray-600">{a}</p>
+              )}
             </div>
           ))}
         </div>
@@ -102,9 +128,14 @@ export default function Home() {
 
       {/* ---------------- FOOTER ---------------- */}
       <footer className="bg-gray-100 py-6 text-center text-sm text-gray-500">
-        © {new Date().getFullYear()} PassFRCSENT&nbsp;Ltd ·
-        <Link href="#" className="underline mx-1">Privacy</Link>·
-        <Link href="#" className="underline mx-1">Terms</Link>
+        © {new Date().getFullYear()} PassFRCSENT Ltd ·{' '}
+        <Link href="#" className="underline mx-1">
+          Privacy
+        </Link>
+        ·
+        <Link href="#" className="underline mx-1">
+          Terms
+        </Link>
       </footer>
     </main>
   );
