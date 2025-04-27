@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
         {/* --------- APP --------- */}
         <main className="flex-1">{children}</main>
-+        </SupabaseProvider>
+        </SupabaseProvider>
 
         {/* --------- FOOTER --------- */}
         <footer className="bg-gray-50 py-6 text-center text-sm text-gray-500">
