@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import supabase from '@/lib/supabase';     // server/client helper is fine
+import { useUser } from '@/lib/useUser'
 import Link from 'next/link';
 
 /* ----------------- CONSTANTS ----------------- */
@@ -15,6 +16,21 @@ const TOPICS = [
 
 /* ----------------- PAGE ---------------------- */
 export default function BankPage() {
+  const user = useUser()
+
+  // --- Gate: if not signed in, show call-to-action ---
+  if (!user) {
+    return (
+      <main className="min-h-screen flex flex-col items-center justify-center p-6">
+        <h2 className="text-2xl font-semibold mb-4">Please sign in to access the Question Bank</h2>
+        <Link
+          href="/login"
+          className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Sign in / Sign up
+        </Link>
+      </main>
+    )}
   /* filters */
   const [checked, setChecked] = useState<string[]>(TOPICS);
 
