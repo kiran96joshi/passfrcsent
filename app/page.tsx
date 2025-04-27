@@ -35,6 +35,14 @@ export default function Home() {
           >
             Question&nbsp;bank → sign&nbsp;in required
           </Link>
+          {user && (
++         <Link
++           href="/dashboard"
++           className="px-8 py-3 rounded bg-green-600 text-white text-center hover:bg-green-700"
++         >
++           Go to Dashboard
++         </Link>
++       )}
         </div>
       </section>
 
