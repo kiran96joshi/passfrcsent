@@ -127,11 +127,12 @@ export default function Practice() {
 
         {/* sidebar (right on desktop, slides below on mobile) */}
         {sidebarOpen && (
-          <Sidebar
-            answers={answers}
-            correctAnswers={demoQuestions.map((d) => d.answer)}
-            checked={checked}
-          />
+        <Sidebar
+        answers={answers}
+        correctAnswers={demoQuestions.map(q => q.answer)}
+        checked={checked}
+        onJump={(i) => setIndex(i)}
+        />
         )}
       </section>
     </>

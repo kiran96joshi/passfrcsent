@@ -1,29 +1,43 @@
-'use client';
-export default function Sidebar({
-  answers,
-  correctAnswers,
-  checked,
-}: {
-  answers: (number | null)[];
-  correctAnswers: number[];
-  checked: boolean[];
-}) {
+// components/Sidebar.tsx
+'use client'
+
+import React, { FC } from 'react'
+
+interface SidebarProps {
+  /** What the user selected for each question (or null) */
+  answers: (number | null)[]
+  /** The correct answer index for each question */
+  correctAnswers: number[]
+  /** Which questions have been “checked”/locked in */
+  checked: boolean[]
+  /** Called when the user clicks question #i */
+  onJump: (i: number) => void
+}
+
+const Sidebar: FC<SidebarProps> = ({ answers, correctAnswers, checked, onJump }) => {
   return (
-    <aside className="w-64 lg:max-h-[calc(100vh_-_56px)] overflow-y-auto shrink-0 pb-6 lg:pb-0">
-      {answers.map((a, i) => {
-        let symbol = '○', colour = 'text-gray-400';
-        if (checked[i]) {
-          const ok = a === correctAnswers[i];
-          symbol = ok ? '✓' : '✕';
-          colour = ok ? 'text-emerald-600' : 'text-rose-600';
+    <aside className="w-20 space-y-1">
+      {answers.map((_ans, i) => {
+        let bg: string
+        if (!checked[i]) {
+          bg = 'bg-gray-200'
+        } else if (answers[i] === correctAnswers[i]) {
+          bg = 'bg-green-500'
+        } else {
+          bg = 'bg-red-500'
         }
         return (
-          <div key={i} className="py-2 px-3 border-b last:border-none flex justify-between text-sm">
-            <span>Question&nbsp;{i + 1}</span>
-            <span className={colour}>{symbol}</span>
-          </div>
-        );
+          <button
+            key={i}
+            onClick={() => onJump(i)}
+            className={`${bg} text-white rounded w-full h-8 flex items-center justify-center text-sm`}
+          >
+            {i + 1}
+          </button>
+        )
       })}
     </aside>
-  );
+  )
 }
+
+export default Sidebar

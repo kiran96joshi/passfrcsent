@@ -224,12 +224,13 @@ export default function PracticeClient() {
         </div>
 
         {sidebarOpen && (
-          <Sidebar
-            answers={answers}
-            correctAnswers={questions.map((qq) => qq.answer)}
-            checked={checked}
-          />
-        )}
+  <Sidebar
+    answers={answers}
+    correctAnswers={questions.map(q => q.answer)}
+    checked={checked}
+    onJump={(i: number) => setIndex(i)}
+  />
+)}
       </section>
     </>
   )

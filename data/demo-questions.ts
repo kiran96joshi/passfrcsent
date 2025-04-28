@@ -18,7 +18,7 @@ export const demoQuestions: Question[] = [
       'OSIA transcutaneous implant',
       'Bonebridge transcutaneous implant',
     ],
-    answer: 3,
+    answer: 2,
     explanation:
       'Blind-sac closure removes the ear canal, making air-conduction aids ineffective. A Bonebridge needs BC ≤ 45 dB, and an OSIA produces MRI artefact that would obscure cholesteatoma surveillance. A percutaneous BAHA gives immediate binaural stimulation and creates minimal MRI shadow, so it is preferred.',
   },
