@@ -1,86 +1,93 @@
-'use client';
+// app/(protected)/bank/page.tsx
+'use client'
 
-/* ----------------- CONSTANTS ----------------- */
+import { useState, useEffect } from 'react'
+import { useRouter }           from 'next/navigation'
+import Link                    from 'next/link'
+
+import { useUser }          from '@/lib/useUser'
+import { supabaseBrowser }  from '@/lib/supabaseBrowser'
+
 const TOPICS = [
   'Otology',
   'Head and Neck',
   'Paediatrics',
   'Rhinology and Facial Plastics',
   'EBM & Statistics',
-];
+]
 
-/* ----------------- PAGE ---------------------- */
 export default function BankPage() {
-  const user = useUser()
+  const user   = useUser()
+  const router = useRouter()
 
-  // --- Gate: if not signed in, show call-to-action ---
-  if (!user) {
-    return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-6">
-        <h2 className="text-2xl font-semibold mb-4">Please sign in to access the Question Bank</h2>
-        <Link
-          href="/login"
-          className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Sign in / Sign up
-        </Link>
-      </main>
-    )}
-  /* filters */
-  const [checked, setChecked] = useState<string[]>(TOPICS);
+  // 1) Auth guard
+  // — while auth is still initializing, user===undefined, render nothing
+  if (user === undefined) return null
 
-  /* count + ids coming from Supabase */
-  const [count,       setCount]       = useState<number | null>(null);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  // — if we know user is logged out, kick them back to /login
+  useEffect(() => {
+    if (user === null) router.replace('/login')
+  }, [user, router])
 
-  /* fetch count + ids whenever filters change */
+  // — until redirect finishes, don’t show the page
+  if (!user) return null
+
+  // 2) Category filters
+  const [checked, setChecked] = useState<string[]>(TOPICS)
+
+  // 3) Query state
+  const [count,       setCount]       = useState<number | null>(null)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+
+  // 4) Fetch count + ids from Supabase whenever filters change
   useEffect(() => {
     const run = async () => {
       if (checked.length === 0) {
-        setCount(0);
-        setSelectedIds([]);
-        return;
+        setCount(0)
+        setSelectedIds([])
+        return
       }
 
-      const { data, count, error } = await supabase
+      const { data, count: c, error } = await supabaseBrowser
         .from('questions')
         .select('id', { count: 'exact' })
-        .in('topic', checked);
+        .in('topic', checked)
 
       if (!error) {
-        setCount(count ?? 0);
-        setSelectedIds((data ?? []).map((r) => r.id));
+        setCount(c ?? 0)
+        setSelectedIds((data ?? []).map((r) => r.id))
       }
-    };
+    }
+    run()
+  }, [checked])
 
-    run();
-  }, [checked]);
-
-  /* -------------- RENDER --------------------- */
+  // 5) Render
   return (
     <main className="max-w-5xl mx-auto p-4 space-y-6">
-      <h1 className="text-2xl font-semibold mb-4">Question bank</h1>
+      <h1 className="text-2xl font-semibold mb-4">Question Bank</h1>
 
-      {/* category checklist */}
+      {/* ── Categories */}
       <section className="border rounded p-4">
         <h2 className="font-semibold mb-2">Categories</h2>
-        {TOPICS.map((t) => (
-          <label key={t} className="block">
+        {TOPICS.map((topic) => (
+          <label key={topic} className="block">
             <input
               type="checkbox"
-              checked={checked.includes(t)}
+              checked={checked.includes(topic)}
               onChange={(e) =>
                 setChecked((prev) =>
-                  e.target.checked ? [...prev, t] : prev.filter((x) => x !== t)
+                  e.target.checked
+                    ? [...prev, topic]
+                    : prev.filter((x) => x !== topic)
                 )
               }
             />{' '}
-            {t}
+            {topic}
           </label>
         ))}
       </section>
 
-      {/* result + start button */}
+      {/* ── Results & Start Button */}
       <section className="space-y-3 text-center">
         {count === null ? '…' : `${count} question${count === 1 ? '' : 's'} found`}
 
@@ -90,7 +97,7 @@ export default function BankPage() {
               pathname: '/practice',
               query: { ids: selectedIds.join(',') },
             }}
-            className={`inline-block text-white bg-blue-600 px-6 py-2 rounded ${
+            className={`inline-block bg-blue-600 text-white px-6 py-2 rounded ${
               selectedIds.length ? '' : 'pointer-events-none opacity-40'
             }`}
           >
@@ -99,5 +106,5 @@ export default function BankPage() {
         </div>
       </section>
     </main>
-  );
+  )
 }

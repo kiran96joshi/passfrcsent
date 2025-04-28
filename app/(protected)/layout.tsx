@@ -1,29 +1,24 @@
-'use client'            // must be a client component
+// app/(protected)/layout.tsx
+'use client'
 import { ReactNode, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@/lib/useUser'
-import { SupabaseProvider } from '@/components/SupabaseProvider'
-import NavBar from '@/components/NavBar'
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
-  const user = useUser()
+  const user   = useUser()
   const router = useRouter()
 
-  // 1) while loading session, render nothing
+  // while the hook is checking session (user===undefined), render nothing
   if (user === undefined) return null
 
-  // 2) if not signed in, kick back to /login
+  // if not signed in (user===null), redirect to login
   useEffect(() => {
     if (user === null) router.replace('/login')
   }, [user, router])
 
+  // until the redirect finishes, don’t flash the page
   if (!user) return null
 
-  // 3) once signed in, show NavBar + page
-  return (
-    <SupabaseProvider>
-      <NavBar />
-      <main className="flex-1">{children}</main>
-    </SupabaseProvider>
-  )
+  // signed in: render the protected content
+  return <>{children}</>
 }
