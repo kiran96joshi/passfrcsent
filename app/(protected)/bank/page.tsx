@@ -1,10 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import supabase from '@/lib/supabase';     // server/client helper is fine
-import { useUser } from '@/lib/useUser'
-import Link from 'next/link';
-
 /* ----------------- CONSTANTS ----------------- */
 const TOPICS = [
   'Otology',

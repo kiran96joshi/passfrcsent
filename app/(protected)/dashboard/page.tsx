@@ -1,11 +1,6 @@
 // app/(protected)/dashboard/page.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { useUser } from '@/lib/useUser'
-import { supabaseBrowser } from '@/lib/supabaseBrowser'
-
 type Session = {
   id: string
   score: number

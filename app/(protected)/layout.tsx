@@ -1,24 +1,32 @@
-'use client';
+// app/(protected)/layout.tsx
+'use client'
 
-import { useUser } from '@/lib/useUser';
-import { redirect } from 'next/navigation';
-import type { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useUser } from '@/lib/useUser'
+import { SupabaseProvider } from '@/components/SupabaseProvider'
+import NavBar from '@/components/NavBar'
 
-/**
- * Every page inside the (protected) segment inherits this layout.
- * If there's no signed-in user we redirect to /login.
- */
-export default function ProtectedLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  const user = useUser();
+export default function ProtectedLayout({ children }: { children: ReactNode }) {
+  const user = useUser()       // 1) hook
+  const router = useRouter()   // 2) hook
 
-  if (!user) {
-    redirect('/login');   // ⟵ bounce anonymous visitors
-  }
+  // 3) redirect if not logged in
+  useEffect(() => {
+    if (user === null) router.replace('/login')
+  }, [user, router])
 
-  // user is signed in – render the requested page
-  return <>{children}</>;
+  // 4) while loading session, render nothing
+  if (user === undefined) return null
+
+  // 5) if still not a user, bail (redirect effect will fire)
+  if (!user) return null
+
+  // 6) now render your provider, navbar and page
+  return (
+    <SupabaseProvider>
+      <NavBar />
+      <main className="flex-1">{children}</main>
+    </SupabaseProvider>
+  )
 }
