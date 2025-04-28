@@ -18,9 +18,9 @@ export const demoQuestions: Question[] = [
       'OSIA transcutaneous implant',
       'Bonebridge transcutaneous implant',
     ],
-    answer: 4,
+    answer: 3,
     explanation:
-      'After subtotal petrosectomy the middle ear is absent, so a fully implantable transcutaneous bone-conduction device such as the Bonebridge is preferred.',
+      'Blind-sac closure removes the ear canal, making air-conduction aids ineffective. A Bonebridge needs BC ≤ 45 dB, and an OSIA produces MRI artefact that would obscure cholesteatoma surveillance. A percutaneous BAHA gives immediate binaural stimulation and creates minimal MRI shadow, so it is preferred.',
   },
   {
     id: 'q2',
