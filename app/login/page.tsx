@@ -1,17 +1,26 @@
+// app/login/page.tsx
 'use client'
 
-import { useState, FormEvent } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { supabaseBrowser } from '@/lib/supabaseBrowser'
+import { useState, useEffect, FormEvent } from 'react'
+import { useRouter }                  from 'next/navigation'
+import Link                           from 'next/link'
+import { supabaseBrowser }            from '@/lib/supabaseBrowser'
+import { useUser }                    from '@/lib/useUser'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail]           = useState('')
-  const [password, setPassword]     = useState('')
+  const user   = useUser()
+
+  // 1) If they’re already signed in, kick them to /dashboard
+  useEffect(() => {
+    if (user) router.replace('/dashboard')
+  }, [user, router])
+
+  const [email,        setEmail]        = useState('')
+  const [password,     setPassword]     = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [errorMsg, setErrorMsg]     = useState<string|null>(null)
-  const [loading, setLoading]       = useState(false)
+  const [errorMsg,     setErrorMsg]     = useState<string|null>(null)
+  const [loading,      setLoading]      = useState(false)
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault()

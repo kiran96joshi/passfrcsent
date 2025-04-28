@@ -1,4 +1,4 @@
-// app/layout.tsx
+// app/layout.tsx  — server component only!
 import './globals.css'
 import type { ReactNode } from 'react'
 

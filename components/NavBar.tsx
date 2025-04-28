@@ -3,21 +3,17 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useUser } from '@supabase/auth-helpers-react'
+import { useUser } from '@/lib/useUser'
 import { supabaseBrowser } from '@/lib/supabaseBrowser'
 
 export default function NavBar() {
-  const user   = useUser()
+  const user = useUser()
   const router = useRouter()
 
   const handleLogout = async () => {
     if (!confirm('Are you sure you want to log out?')) return
-    const { error } = await supabaseBrowser.auth.signOut()
-    if (error) {
-      console.error('Logout error:', error.message)
-    } else {
-      router.push('/')
-    }
+    await supabaseBrowser.auth.signOut()
+    router.replace('/login')
   }
 
   return (

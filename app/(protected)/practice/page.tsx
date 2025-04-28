@@ -1,6 +1,6 @@
-export const dynamic = 'force-dynamic';  // disable prerendering
-import PracticeClient from './PracticeClient';
+// app/(protected)/practice/page.tsx
+import PracticeClient from './PracticeClient'
 
 export default function PracticePage() {
-  return <PracticeClient />;
+  return <PracticeClient />
 }
