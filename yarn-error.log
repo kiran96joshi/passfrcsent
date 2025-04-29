@@ -1,0 +1,57 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add @supabase/auth-helpers-nextjs@latest @supabase/supabase-js@latest
+
+PATH: 
+  C:\Users\kiran\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\kiran\bin;C:\Python313\Scripts;C:\Python313;C:\Program Files (x86)\Common Files\Oracle\Java\java8path;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\RSA SecurID Token Common;C:\Program Files\RSA SecurID Token Common;C:\Python39\Scripts;C:\Python39;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Intel\WiFi\bin;C:\Program Files\Common Files\Intel\WirelessCommon;C:\Program Files\dotnet;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;C:\Program Files\Git\cmd;C:\ProgramData\chocolatey\bin;C:\Program Files (x86)\Yarn\bin;C:\Program Files (x86)\dotnet;C:\Program Files\Calibre2;C:\Program Files\nodejs;C:\Program Files\RSA SecurID Token Common;C:\Users\kiran\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Intel\WiFi\bin;C:\Program Files\Common Files\Intel\WirelessCommon;C:\Users\kiran\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\kiran\AppData\Local\GitHubDesktop\bin;C:\Users\kiran\AppData\Local\Yarn\bin;C:\Users\kiran\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-7.1-full_build\bin;C:\Users\kiran\AppData\Local\Microsoft\WinGet\Packages\yt-dlp.yt-dlp_Microsoft.Winget.Source_8wekyb3d8bbwe;C:\Users\kiran\AppData\Local\Microsoft\WindowsApps;C:\Users\kiran\AppData\Roaming\npm;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl
+
+Yarn version: 
+  1.22.5
+
+Node version: 
+  22.15.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: EPERM: operation not permitted, unlink 'C:\Users\kiran\PassFRCSENT\node_modules\@next\swc-win32-x64-msvc\next-swc.win32-x64-msvc.node'
+
+npm manifest: 
+  {
+    "name": "passfrcsent",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "start": "next start",
+      "lint": "next lint"
+    },
+    "dependencies": {
+      "@supabase/auth-helpers-nextjs": "^0.10.0",
+      "@supabase/auth-helpers-react": "^0.5.0",
+      "@supabase/supabase-js": "^2.49.4",
+      "dotenv": "^16.5.0",
+      "next": "^15.3.1",
+      "next-themes": "^0.4.6",
+      "react": "^19.1.0",
+      "react-dom": "^19.1.0"
+    },
+    "devDependencies": {
+      "@types/node": "^20.0.0",
+      "@types/react": "^18.0.0",
+      "autoprefixer": "^10.4.0",
+      "eslint": "8.57.0",
+      "eslint-config-next": "15.0.0",
+      "postcss": "^8.4.0",
+      "tailwindcss": "^3.4.0",
+      "ts-node": "^10.9.2",
+      "typescript": "^5.0.0"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
