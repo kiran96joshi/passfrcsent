@@ -24,7 +24,7 @@ export default function ResetPasswordForm() {
       return
     }
 
-    // v2: use setSession directly – no getSessionFromUrl
+    // v2: use setSession directly – no getSessionFromUrl ok?
     supabase.auth
       .setSession({ access_token, refresh_token })
       .then(({ error }) => {
