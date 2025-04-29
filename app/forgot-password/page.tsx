@@ -5,21 +5,22 @@ import { useState, FormEvent } from 'react'
 import { supabaseBrowser } from '@/lib/supabaseBrowser'
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail]       = useState('')
-  const [sent, setSent]         = useState(false)
-  const [errorMsg, setErrorMsg] = useState<string|null>(null)
-  const [loading, setLoading]   = useState(false)
+  const [email,     setEmail]    = useState('')
+  const [sent,      setSent]     = useState(false)
+  const [errorMsg,  setErrorMsg] = useState<string | null>(null)
+  const [loading,   setLoading]  = useState(false)
 
   const handleReset = async (e: FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
     setLoading(true)
 
+    // Redirect the user back to your /reset-password page
     const { error } = await supabaseBrowser.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`
+      redirectTo: `${window.location.origin}/reset-password`
     })
-    setLoading(false)
 
+    setLoading(false)
     if (error) {
       setErrorMsg(error.message)
     } else {
@@ -37,7 +38,9 @@ export default function ForgotPasswordPage() {
         <form onSubmit={handleReset} className="space-y-6 w-full max-w-sm">
           <h1 className="text-2xl font-semibold text-center">Reset Password</h1>
 
-          {errorMsg && <p className="text-red-600 text-center">{errorMsg}</p>}
+          {errorMsg && (
+            <p className="text-red-600 text-center">{errorMsg}</p>
+          )}
 
           <input
             type="email"
