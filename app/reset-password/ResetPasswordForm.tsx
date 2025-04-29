@@ -1,5 +1,6 @@
 // app/reset-password/ResetPasswordForm.tsx
 'use client'
+
 import { useState, useEffect, FormEvent } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -9,10 +10,10 @@ export default function ResetPasswordForm() {
   const router       = useRouter()
   const searchParams = useSearchParams()
 
-  const [password, setPassword] = useState('')
-  const [confirm , setConfirm ] = useState('')
-  const [step    , setStep    ] = useState<'loading'|'form'|'success'>('loading')
-  const [errorMsg, setErrorMsg] = useState<string|null>(null)
+  const [password,  setPassword ] = useState('')
+  const [confirm,   setConfirm  ] = useState('')
+  const [step,      setStep     ] = useState<'loading'|'form'|'success'>('loading')
+  const [errorMsg,  setErrorMsg ] = useState<string|null>(null)
 
   useEffect(() => {
     const access_token  = searchParams.get('access_token')
@@ -27,8 +28,11 @@ export default function ResetPasswordForm() {
     supabase.auth
       .setSession({ access_token, refresh_token })
       .then(({ error }) => {
-        if (error) setErrorMsg(error.message)
-        else setStep('form')
+        if (error) {
+          setErrorMsg(error.message)
+        } else {
+          setStep('form')
+        }
       })
   }, [searchParams, supabase])
 
@@ -40,14 +44,15 @@ export default function ResetPasswordForm() {
       return
     }
     const { error } = await supabase.auth.updateUser({ password })
-    if (error) setErrorMsg(error.message)
-    else {
+    if (error) {
+      setErrorMsg(error.message)
+    } else {
       setStep('success')
       setTimeout(() => router.replace('/login'), 2000)
     }
   }
 
-  if (errorMsg) return <p className="p-6 text-red-600">{errorMsg}</p>
+  if (errorMsg)    return <p className="p-6 text-red-600">{errorMsg}</p>
   if (step === 'loading') return <p className="p-6">Validating recovery link…</p>
   if (step === 'success') return <p className="p-6 text-green-600">Password updated! Redirecting…</p>
 
