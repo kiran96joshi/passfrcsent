@@ -2,9 +2,8 @@
 // ─────────────────────────────────────────────────
 // Tell Next.js “this page is fully dynamic”
 // and shim out any static prerender step:
-export const dynamic = 'force-dynamic';
-
 'use client'; // everything here is client-side only
+export const dynamic = 'force-dynamic';
 
 import ResetPasswordForm from './ResetPasswordForm';
 
