@@ -1,75 +1,57 @@
 // app/reset-password/ResetPasswordForm.tsx
-'use client'
-
-import { useState, useEffect, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
-import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
+'use client';
+import { useState, useEffect, FormEvent } from 'react';
+import { useRouter }                    from 'next/navigation';
+import { createPagesBrowserClient }     from '@supabase/auth-helpers-nextjs';
 
 export default function ResetPasswordForm() {
-  const supabase = createPagesBrowserClient()
-  const router   = useRouter()
+  const supabase     = createPagesBrowserClient();
+  const router       = useRouter();
 
-  const [step,     setStep]     = useState<'loading'|'form'|'success'>('loading')
-  const [errorMsg, setErrorMsg] = useState<string|null>(null)
-  const [password, setPassword] = useState('')
-  const [confirm,  setConfirm]  = useState('')
+  const [step,     setStep]     = useState<'loading'|'form'|'success'>('loading');
+  const [password, setPassword] = useState('');
+  const [confirm,  setConfirm]  = useState('');
+  const [errorMsg, setErrorMsg] = useState<string|null>(null);
 
+  // 1️⃣ Grab the tokens from the URL fragment, store them in HTTP-only cookies:
   useEffect(() => {
-    // Merge ?query and #hash into one URLSearchParams
-    const raw = window.location.search + window.location.hash.replace('#', '?')
-    const params = new URLSearchParams(raw)
-
-    const access_token  = params.get('access_token')
-    const refresh_token = params.get('refresh_token')
-    const type          = params.get('type')
-
-    if (type !== 'recovery' || !access_token || !refresh_token) {
-      setErrorMsg('Invalid or expired recovery link.')
-      return
-    }
-
     supabase.auth
-      .setSession({ access_token, refresh_token })
-      .then(({ error }) => {
+      .getSessionFromUrl({ storeSession: true })
+      .then(({ data, error }) => {
         if (error) {
-          setErrorMsg(error.message)
+          setErrorMsg(error.message);
         } else {
-          setStep('form')
+          setStep('form');
         }
-      })
-  }, [supabase])
+      });
+  }, [supabase]);
 
+  // 2️⃣ When they submit the new password:
   const handleReset = async (e: FormEvent) => {
-    e.preventDefault()
-    setErrorMsg(null)
-
+    e.preventDefault();
+    setErrorMsg(null);
     if (password !== confirm) {
-      setErrorMsg('Passwords do not match')
-      return
+      setErrorMsg('Passwords do not match');
+      return;
     }
-
-    const { error } = await supabase.auth.updateUser({ password })
+    const { error } = await supabase.auth.updateUser({ password });
     if (error) {
-      setErrorMsg(error.message)
+      setErrorMsg(error.message);
     } else {
-      setStep('success')
-      setTimeout(() => router.replace('/login'), 2000)
+      setStep('success');
+      setTimeout(() => router.replace('/login'), 2000);
     }
-  }
+  };
 
-  if (errorMsg) return <p className="p-6 text-red-600">{errorMsg}</p>
-  if (step === 'loading') return <p className="p-6">Validating recovery link…</p>
-  if (step === 'success') return <p className="p-6 text-green-600">
-    Password updated! Redirecting…  
-  </p>
+  if (errorMsg)             return <p className="p-6 text-red-600">{errorMsg}</p>;
+  if (step === 'loading')   return <p className="p-6">Validating recovery link…</p>;
+  if (step === 'success')   return <p className="p-6 text-green-600">Password updated! Redirecting…</p>;
 
-  // STEP === 'form'
+  // step === 'form'
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
       <form onSubmit={handleReset} className="space-y-6 w-full max-w-sm">
-        <h1 className="text-2xl font-semibold text-center">
-          Choose a New Password
-        </h1>
+        <h1 className="text-2xl font-semibold text-center">Choose a New Password</h1>
         <input
           type="password"
           placeholder="New password"
@@ -94,5 +76,5 @@ export default function ResetPasswordForm() {
         </button>
       </form>
     </main>
-  )
+  );
 }
