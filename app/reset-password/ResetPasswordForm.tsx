@@ -15,7 +15,7 @@ export default function ResetPasswordForm() {
   const [step,     setStep]     = useState<'loading'|'form'|'success'>('loading')
   const [errorMsg, setErrorMsg] = useState<string|null>(null)
 
-  // 1) grab tokens and init session
+  // 1) Validate recovery link & establish session
   useEffect(() => {
     const access_token  = searchParams.get('access_token')
     const refresh_token = searchParams.get('refresh_token')
@@ -29,15 +29,12 @@ export default function ResetPasswordForm() {
     supabase.auth
       .setSession({ access_token, refresh_token })
       .then(({ error }) => {
-        if (error) {
-          setErrorMsg(error.message)
-        } else {
-          setStep('form')
-        }
+        if (error) setErrorMsg(error.message)
+        else      setStep('form')
       })
   }, [searchParams, supabase])
 
-  // 2) handle the actual password update
+  // 2) Handle the actual password reset
   const handleReset = async (e: FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
@@ -56,7 +53,7 @@ export default function ResetPasswordForm() {
     }
   }
 
-  // render states
+  // 3) Render states
   if (errorMsg)       return <p className="p-6 text-red-600">{errorMsg}</p>
   if (step === 'loading') return <p className="p-6">Validating recovery link…</p>
   if (step === 'success') return <p className="p-6 text-green-600">Password updated! Redirecting…</p>
