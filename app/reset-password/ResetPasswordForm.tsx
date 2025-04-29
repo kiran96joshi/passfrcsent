@@ -10,11 +10,12 @@ export default function ResetPasswordForm() {
   const router       = useRouter()
   const searchParams = useSearchParams()
 
-  const [password,  setPassword ] = useState('')
-  const [confirm,   setConfirm  ] = useState('')
-  const [step,      setStep     ] = useState<'loading'|'form'|'success'>('loading')
-  const [errorMsg,  setErrorMsg ] = useState<string|null>(null)
+  const [password, setPassword] = useState('')
+  const [confirm,  setConfirm]  = useState('')
+  const [step,     setStep]     = useState<'loading'|'form'|'success'>('loading')
+  const [errorMsg, setErrorMsg] = useState<string|null>(null)
 
+  // 1) grab tokens and init session
   useEffect(() => {
     const access_token  = searchParams.get('access_token')
     const refresh_token = searchParams.get('refresh_token')
@@ -36,13 +37,16 @@ export default function ResetPasswordForm() {
       })
   }, [searchParams, supabase])
 
+  // 2) handle the actual password update
   const handleReset = async (e: FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
+
     if (password !== confirm) {
       setErrorMsg('Passwords do not match')
       return
     }
+
     const { error } = await supabase.auth.updateUser({ password })
     if (error) {
       setErrorMsg(error.message)
@@ -52,7 +56,8 @@ export default function ResetPasswordForm() {
     }
   }
 
-  if (errorMsg)    return <p className="p-6 text-red-600">{errorMsg}</p>
+  // render states
+  if (errorMsg)       return <p className="p-6 text-red-600">{errorMsg}</p>
   if (step === 'loading') return <p className="p-6">Validating recovery link…</p>
   if (step === 'success') return <p className="p-6 text-green-600">Password updated! Redirecting…</p>
 
