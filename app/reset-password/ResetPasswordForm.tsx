@@ -1,57 +1,70 @@
 // app/reset-password/ResetPasswordForm.tsx
-'use client';
-import { useState, useEffect, FormEvent } from 'react';
-import { useRouter }                    from 'next/navigation';
-import { createPagesBrowserClient }     from '@supabase/auth-helpers-nextjs';
+'use client'
+
+import { useState, useEffect, FormEvent } from 'react'
+import { useRouter }                    from 'next/navigation'
+import { createPagesBrowserClient }     from '@supabase/auth-helpers-nextjs'
 
 export default function ResetPasswordForm() {
-  const supabase     = createPagesBrowserClient();
-  const router       = useRouter();
+  const supabase = createPagesBrowserClient()
+  const router   = useRouter()
 
-  const [step,     setStep]     = useState<'loading'|'form'|'success'>('loading');
-  const [password, setPassword] = useState('');
-  const [confirm,  setConfirm]  = useState('');
-  const [errorMsg, setErrorMsg] = useState<string|null>(null);
+  const [step,     setStep]     = useState<'loading'|'form'|'success'>('loading')
+  const [errorMsg, setErrorMsg] = useState<string|null>(null)
+  const [password, setPassword] = useState('')
+  const [confirm,  setConfirm]  = useState('')
 
-  // 1️⃣ Grab the tokens from the URL fragment, store them in HTTP-only cookies:
   useEffect(() => {
+    // grab both ? and # fragments
+    const raw = window.location.search + window.location.hash.replace('#', '?')
+    const params = new URLSearchParams(raw)
+    const tokenType    = params.get('type')
+    const accessToken  = params.get('access_token')
+    const refreshToken = params.get('refresh_token')
+
+    if (tokenType !== 'recovery' || !accessToken || !refreshToken) {
+      setErrorMsg('Invalid or expired recovery link.')
+      return
+    }
+
+    // this will set the HTTP−only cookie for you
     supabase.auth
-      .getSessionFromUrl({ storeSession: true })
-      .then(({ data, error }) => {
-        if (error) {
-          setErrorMsg(error.message);
-        } else {
-          setStep('form');
-        }
-      });
-  }, [supabase]);
+      .setSession({ access_token: accessToken, refresh_token: refreshToken })
+      .then(({ error }) => {
+        if (error) setErrorMsg(error.message)
+        else      setStep('form')
+      })
+  }, [supabase])
 
-  // 2️⃣ When they submit the new password:
   const handleReset = async (e: FormEvent) => {
-    e.preventDefault();
-    setErrorMsg(null);
-    if (password !== confirm) {
-      setErrorMsg('Passwords do not match');
-      return;
-    }
-    const { error } = await supabase.auth.updateUser({ password });
-    if (error) {
-      setErrorMsg(error.message);
-    } else {
-      setStep('success');
-      setTimeout(() => router.replace('/login'), 2000);
-    }
-  };
+    e.preventDefault()
+    setErrorMsg(null)
 
-  if (errorMsg)             return <p className="p-6 text-red-600">{errorMsg}</p>;
-  if (step === 'loading')   return <p className="p-6">Validating recovery link…</p>;
-  if (step === 'success')   return <p className="p-6 text-green-600">Password updated! Redirecting…</p>;
+    if (password !== confirm) {
+      setErrorMsg('Passwords do not match')
+      return
+    }
+
+    const { error } = await supabase.auth.updateUser({ password })
+    if (error) {
+      setErrorMsg(error.message)
+    } else {
+      setStep('success')
+      setTimeout(() => router.replace('/login'), 2000)
+    }
+  }
+
+  if (errorMsg)             return <p className="p-6 text-red-600">{errorMsg}</p>
+  if (step === 'loading')   return <p className="p-6">Validating recovery link…</p>
+  if (step === 'success')   return <p className="p-6 text-green-600">Password updated! Redirecting…</p>
 
   // step === 'form'
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
       <form onSubmit={handleReset} className="space-y-6 w-full max-w-sm">
-        <h1 className="text-2xl font-semibold text-center">Choose a New Password</h1>
+        <h1 className="text-2xl font-semibold text-center">
+          Choose a New Password
+        </h1>
         <input
           type="password"
           placeholder="New password"
@@ -76,5 +89,5 @@ export default function ResetPasswordForm() {
         </button>
       </form>
     </main>
-  );
+  )
 }
