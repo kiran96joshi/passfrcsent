@@ -1,37 +1,42 @@
-// app/reset-password/ResetPasswordForm.tsx
 'use client'
 
 import { useState, useEffect, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
-import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
+import { useRouter }                   from 'next/navigation'
+import { createPagesBrowserClient }    from '@supabase/auth-helpers-nextjs'
 
 export default function ResetPasswordForm() {
   const supabase = createPagesBrowserClient()
   const router   = useRouter()
 
-  const [step,     setStep]     = useState<'loading'|'form'|'success'>('loading')
-  const [errorMsg, setErrorMsg] = useState<string|null>(null)
-  const [password, setPassword] = useState('')
-  const [confirm,  setConfirm]  = useState('')
+  const [step,       setStep]     = useState<'loading'|'form'|'success'>('loading')
+  const [errorMsg,   setErrorMsg] = useState<string|null>(null)
+  const [password,   setPassword] = useState('')
+  const [confirm,    setConfirm]  = useState('')
 
   useEffect(() => {
-    // pull both ?query and #hash out of window.location
-    const raw       = window.location.search + window.location.hash.replace('#','?')
-    const params    = new URLSearchParams(raw)
-    const at       = params.get('access_token')
-    const rt       = params.get('refresh_token')
-    const t        = params.get('type')
+    // combine ?query and #hash so we catch supabase tokens in either
+    const raw    = window.location.search + window.location.hash.replace('#','?')
+    const params = new URLSearchParams(raw)
 
-    if (t !== 'recovery' || !at || !rt) {
+    const access_token  = params.get('access_token')
+    const refresh_token = params.get('refresh_token')
+    const type          = params.get('type')
+
+    if (type !== 'recovery' || !access_token || !refresh_token) {
       setErrorMsg('Invalid or expired recovery link.')
       return
     }
 
-    // this is all you need:
-    supabase.auth.setSession({ access_token: at, refresh_token: rt })
+    // ① Exchange those tokens for a real session
+    supabase.auth
+      .setSession({ access_token, refresh_token })
       .then(({ error }) => {
-        if (error) setErrorMsg(error.message)
-        else       setStep('form')
+        if (error) {
+          setErrorMsg(error.message)
+        } else {
+          // now we can show the password form
+          setStep('form')
+        }
       })
   }, [supabase])
 
@@ -44,16 +49,18 @@ export default function ResetPasswordForm() {
       return
     }
 
+    // ② With our recovery session in place, update the user’s password
     const { error } = await supabase.auth.updateUser({ password })
     if (error) {
       setErrorMsg(error.message)
     } else {
       setStep('success')
-      setTimeout(() => router.replace('/login'), 2000)
+      setTimeout(() => router.replace('/login'), 1500)
     }
   }
 
-  if (errorMsg)           return <p className="p-6 text-red-600">{errorMsg}</p>
+  // — render states —
+  if (errorMsg)    return <p className="p-6 text-red-600">{errorMsg}</p>
   if (step === 'loading') return <p className="p-6">Validating recovery link…</p>
   if (step === 'success') return <p className="p-6 text-green-600">Password updated! Redirecting…</p>
 

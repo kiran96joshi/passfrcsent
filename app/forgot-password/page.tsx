@@ -1,13 +1,13 @@
-// app/forgot-password/page.tsx
 'use client'
 
 import { useState, FormEvent } from 'react'
-import { supabaseBrowser } from '@/lib/supabaseBrowser'
+import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 
 export default function ForgotPasswordPage() {
+  const supabase = createPagesBrowserClient()
   const [email,     setEmail]    = useState('')
   const [sent,      setSent]     = useState(false)
-  const [errorMsg,  setErrorMsg] = useState<string | null>(null)
+  const [errorMsg,  setErrorMsg] = useState<string|null>(null)
   const [loading,   setLoading]  = useState(false)
 
   const handleReset = async (e: FormEvent) => {
@@ -15,8 +15,8 @@ export default function ForgotPasswordPage() {
     setErrorMsg(null)
     setLoading(true)
 
-    // Redirect the user back to your /reset-password page
-    const { error } = await supabaseBrowser.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      // point back at our custom form:
       redirectTo: `${window.location.origin}/reset-password`
     })
 
@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
     <main className="min-h-screen flex items-center justify-center p-6">
       {sent ? (
         <p className="text-center text-lg">
-          If that email exists, you’ll receive a password reset link shortly.
+          If that email exists, you&#8217;ll receive a password reset link shortly.
         </p>
       ) : (
         <form onSubmit={handleReset} className="space-y-6 w-full max-w-sm">
@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
 
           <input
             type="email"
-            placeholder="your-email@example.com"
+            placeholder="you@example.com"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
