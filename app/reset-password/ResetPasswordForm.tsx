@@ -2,8 +2,8 @@
 'use client'
 
 import { useState, useEffect, FormEvent } from 'react'
-import { useRouter }                    from 'next/navigation'
-import { createPagesBrowserClient }     from '@supabase/auth-helpers-nextjs'
+import { useRouter } from 'next/navigation'
+import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 
 export default function ResetPasswordForm() {
   const supabase = createPagesBrowserClient()
@@ -15,24 +15,23 @@ export default function ResetPasswordForm() {
   const [confirm,  setConfirm]  = useState('')
 
   useEffect(() => {
-    // grab both ? and # fragments
-    const raw = window.location.search + window.location.hash.replace('#', '?')
-    const params = new URLSearchParams(raw)
-    const tokenType    = params.get('type')
-    const accessToken  = params.get('access_token')
-    const refreshToken = params.get('refresh_token')
+    // pull both ?query and #hash out of window.location
+    const raw       = window.location.search + window.location.hash.replace('#','?')
+    const params    = new URLSearchParams(raw)
+    const at       = params.get('access_token')
+    const rt       = params.get('refresh_token')
+    const t        = params.get('type')
 
-    if (tokenType !== 'recovery' || !accessToken || !refreshToken) {
+    if (t !== 'recovery' || !at || !rt) {
       setErrorMsg('Invalid or expired recovery link.')
       return
     }
 
-    // this will set the HTTP−only cookie for you
-    supabase.auth
-      .setSession({ access_token: accessToken, refresh_token: refreshToken })
+    // this is all you need:
+    supabase.auth.setSession({ access_token: at, refresh_token: rt })
       .then(({ error }) => {
         if (error) setErrorMsg(error.message)
-        else      setStep('form')
+        else       setStep('form')
       })
   }, [supabase])
 
@@ -54,9 +53,9 @@ export default function ResetPasswordForm() {
     }
   }
 
-  if (errorMsg)             return <p className="p-6 text-red-600">{errorMsg}</p>
-  if (step === 'loading')   return <p className="p-6">Validating recovery link…</p>
-  if (step === 'success')   return <p className="p-6 text-green-600">Password updated! Redirecting…</p>
+  if (errorMsg)           return <p className="p-6 text-red-600">{errorMsg}</p>
+  if (step === 'loading') return <p className="p-6">Validating recovery link…</p>
+  if (step === 'success') return <p className="p-6 text-green-600">Password updated! Redirecting…</p>
 
   // step === 'form'
   return (
