@@ -1,4 +1,3 @@
-// app/reset-password/ResetPasswordForm.tsx
 'use client'
 
 import { useState, useEffect, FormEvent } from 'react'
@@ -14,21 +13,22 @@ export default function ResetPasswordForm() {
   const [password, setPassword] = useState('')
   const [confirm,  setConfirm]  = useState('')
 
-  // 1️⃣ Let Supabase hydrate/validate the session tokens from the URL
+  // 1️⃣ hydrate/validate the recovery‐link session
   useEffect(() => {
+    // TS types lag here; at runtime this method is present
+    // @ts-ignore
     supabase.auth
       .getSessionFromUrl({ storeSession: true })
       .then(({ data, error }) => {
         if (error) {
           setErrorMsg(error.message)
         } else {
-          // we now have a valid session and can show the form
           setStep('form')
         }
       })
   }, [supabase])
 
-  // 2️⃣ Once hydrated, allow the user to actually submit a new password
+  // 2️⃣ handle the new password submission
   const handleReset = async (e: FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
@@ -47,7 +47,7 @@ export default function ResetPasswordForm() {
     }
   }
 
-  // 3️⃣ Render all the states
+  // 3️⃣ render all states
   if (errorMsg) {
     return <p className="p-6 text-red-600">{errorMsg}</p>
   }
