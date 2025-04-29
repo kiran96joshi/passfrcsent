@@ -1,17 +1,13 @@
 // app/reset-password/page.tsx
-import React, { Suspense } from 'react'
-import ResetPasswordForm from './ResetPasswordForm'
+// ─────────────────────────────────────────────────
+// Tell Next.js “this page is fully dynamic”
+// and shim out any static prerender step:
+export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Reset Password',
-}
+'use client'; // everything here is client-side only
+
+import ResetPasswordForm from './ResetPasswordForm';
 
 export default function ResetPasswordPage() {
-  return (
-    // Wrap the client component in Suspense so Next.js won't try
-    // to prerender its hooks on the server
-    <Suspense fallback={<p className="p-6">Loading…</p>}>
-      <ResetPasswordForm />
-    </Suspense>
-  )
+  return <ResetPasswordForm />;
 }
