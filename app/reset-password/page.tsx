@@ -1,4 +1,4 @@
-// app/reset-password/page.tsx
+// app/reset-password/page.tsx  ← NO "use client" here!
 import ResetPasswordForm from './ResetPasswordForm'
 
 export const metadata = {
