@@ -8,6 +8,8 @@ export const metadata = {
 
 export default function ResetPasswordPage() {
   return (
+    // Wrap the client component in Suspense so Next.js won't try
+    // to prerender its hooks on the server
     <Suspense fallback={<p className="p-6">Loading…</p>}>
       <ResetPasswordForm />
     </Suspense>

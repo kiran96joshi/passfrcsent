@@ -1,40 +1,54 @@
-// app/reset-password/ResetPasswordForm.tsx
 'use client'
 
 import { useState, useEffect, FormEvent } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter }                from 'next/navigation'
 import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 
 export default function ResetPasswordForm() {
-  const supabase     = createPagesBrowserClient()
-  const router       = useRouter()
-  const searchParams = useSearchParams()
+  const supabase = createPagesBrowserClient()
+  const router   = useRouter()
 
   const [password, setPassword] = useState('')
   const [confirm,  setConfirm]  = useState('')
   const [step,     setStep]     = useState<'loading'|'form'|'success'>('loading')
   const [errorMsg, setErrorMsg] = useState<string|null>(null)
 
-  // 1️⃣ Validate recovery link & set session
+  // 1️⃣ Extract tokens from either ?query=… or #hash=…
   useEffect(() => {
-    const access_token  = searchParams.get('access_token')
-    const refresh_token = searchParams.get('refresh_token')
-    const type          = searchParams.get('type')
+    let access_token: string | null = null
+    let refresh_token: string | null = null
+    let type: string | null = null
 
+    // 1a) from query string
+    const q = new URLSearchParams(window.location.search)
+    type          = q.get('type')
+    access_token  = q.get('access_token')
+    refresh_token = q.get('refresh_token')
+
+    // 1b) if missing, try the URL fragment (hash)
+    if (!access_token || !refresh_token) {
+      const h = new URLSearchParams(window.location.hash.replace(/^#/,'?'))
+      type          = h.get('type')
+      access_token  = h.get('access_token')
+      refresh_token = h.get('refresh_token')
+    }
+
+    // 1c) validate
     if (type !== 'recovery' || !access_token || !refresh_token) {
       setErrorMsg('Invalid or expired recovery link.')
       return
     }
 
+    // 1d) set the Supabase session
     supabase.auth
       .setSession({ access_token, refresh_token })
       .then(({ error }) => {
         if (error) setErrorMsg(error.message)
         else       setStep('form')
       })
-  }, [searchParams, supabase])
+  }, [supabase])
 
-  // 2️⃣ Handle the password reset submission
+  // 2️⃣ When user submits the new password
   const handleReset = async (e: FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
@@ -53,12 +67,12 @@ export default function ResetPasswordForm() {
     }
   }
 
-  // 3️⃣ Render states
-  if (errorMsg)  return <p className="p-6 text-red-600">{errorMsg}</p>
-  if (step === 'loading') return <p className="p-6">Validating recovery link…</p>
-  if (step === 'success') return <p className="p-6 text-green-600">
-    Password updated! Redirecting to login…
-  </p>
+  // 3️⃣ Render logic
+  if (errorMsg)             return <p className="p-6 text-red-600">{errorMsg}</p>
+  if (step === 'loading')   return <p className="p-6">Validating recovery link…</p>
+  if (step === 'success')   return <p className="p-6 text-green-600">
+                                 Password updated! Redirecting to login…
+                               </p>
 
   // step === 'form'
   return (
