@@ -1,4 +1,5 @@
 // app/reset-password/page.tsx
+import React, { Suspense } from 'react'
 import ResetPasswordForm from './ResetPasswordForm'
 
 export const metadata = {
@@ -6,5 +7,9 @@ export const metadata = {
 }
 
 export default function ResetPasswordPage() {
-  return <ResetPasswordForm />
+  return (
+    <Suspense fallback={<p className="p-6">Loading…</p>}>
+      <ResetPasswordForm />
+    </Suspense>
+  )
 }

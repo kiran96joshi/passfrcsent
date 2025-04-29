@@ -1,8 +1,9 @@
+// app/reset-password/ResetPasswordForm.tsx
 'use client'
 
 import { useState, useEffect, FormEvent } from 'react'
-import { useRouter, useSearchParams }   from 'next/navigation'
-import { createPagesBrowserClient }      from '@supabase/auth-helpers-nextjs'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 
 export default function ResetPasswordForm() {
   const supabase     = createPagesBrowserClient()
@@ -14,6 +15,7 @@ export default function ResetPasswordForm() {
   const [step,     setStep]     = useState<'loading'|'form'|'success'>('loading')
   const [errorMsg, setErrorMsg] = useState<string|null>(null)
 
+  // 1️⃣ Validate recovery link & set session
   useEffect(() => {
     const access_token  = searchParams.get('access_token')
     const refresh_token = searchParams.get('refresh_token')
@@ -24,41 +26,47 @@ export default function ResetPasswordForm() {
       return
     }
 
-    // v2: use setSession directly – no getSessionFromUrl ok?
     supabase.auth
       .setSession({ access_token, refresh_token })
       .then(({ error }) => {
-        if (error) {
-          setErrorMsg(error.message)
-        } else {
-          setStep('form')
-        }
+        if (error) setErrorMsg(error.message)
+        else       setStep('form')
       })
   }, [searchParams, supabase])
 
+  // 2️⃣ Handle the password reset submission
   const handleReset = async (e: FormEvent) => {
     e.preventDefault()
+    setErrorMsg(null)
+
     if (password !== confirm) {
       setErrorMsg('Passwords do not match')
       return
     }
+
     const { error } = await supabase.auth.updateUser({ password })
-    if (error) setErrorMsg(error.message)
-    else {
+    if (error) {
+      setErrorMsg(error.message)
+    } else {
       setStep('success')
       setTimeout(() => router.replace('/login'), 2000)
     }
   }
 
-  if (errorMsg) return <p className="p-6 text-red-600">{errorMsg}</p>
+  // 3️⃣ Render states
+  if (errorMsg)  return <p className="p-6 text-red-600">{errorMsg}</p>
   if (step === 'loading') return <p className="p-6">Validating recovery link…</p>
-  if (step === 'success') return <p className="p-6 text-green-600">Password updated! Redirecting…</p>
+  if (step === 'success') return <p className="p-6 text-green-600">
+    Password updated! Redirecting to login…
+  </p>
 
   // step === 'form'
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
       <form onSubmit={handleReset} className="space-y-6 w-full max-w-sm">
-        <h1 className="text-2xl font-semibold text-center">Choose a New Password</h1>
+        <h1 className="text-2xl font-semibold text-center">
+          Choose a New Password
+        </h1>
         <input
           type="password"
           placeholder="New password"
