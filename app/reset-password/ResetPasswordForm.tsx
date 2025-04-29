@@ -2,39 +2,33 @@
 'use client'
 
 import { useState, useEffect, FormEvent } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
+import { useRouter }                   from 'next/navigation'
+import { createPagesBrowserClient }    from '@supabase/auth-helpers-nextjs'
 
 export default function ResetPasswordForm() {
-  const supabase     = createPagesBrowserClient()
-  const router       = useRouter()
-  const searchParams = useSearchParams()
+  const supabase = createPagesBrowserClient()
+  const router   = useRouter()
 
-  const [password, setPassword] = useState('')
-  const [confirm,  setConfirm]  = useState('')
   const [step,     setStep]     = useState<'loading'|'form'|'success'>('loading')
   const [errorMsg, setErrorMsg] = useState<string|null>(null)
+  const [password, setPassword] = useState('')
+  const [confirm,  setConfirm]  = useState('')
 
-  // 1) Validate recovery link & establish session
+  // 1️⃣ Let Supabase hydrate/validate the session tokens from the URL
   useEffect(() => {
-    const access_token  = searchParams.get('access_token')
-    const refresh_token = searchParams.get('refresh_token')
-    const type          = searchParams.get('type')
-
-    if (type !== 'recovery' || !access_token || !refresh_token) {
-      setErrorMsg('Invalid or expired recovery link.')
-      return
-    }
-
     supabase.auth
-      .setSession({ access_token, refresh_token })
-      .then(({ error }) => {
-        if (error) setErrorMsg(error.message)
-        else      setStep('form')
+      .getSessionFromUrl({ storeSession: true })
+      .then(({ data, error }) => {
+        if (error) {
+          setErrorMsg(error.message)
+        } else {
+          // we now have a valid session and can show the form
+          setStep('form')
+        }
       })
-  }, [searchParams, supabase])
+  }, [supabase])
 
-  // 2) Handle the actual password reset
+  // 2️⃣ Once hydrated, allow the user to actually submit a new password
   const handleReset = async (e: FormEvent) => {
     e.preventDefault()
     setErrorMsg(null)
@@ -53,15 +47,29 @@ export default function ResetPasswordForm() {
     }
   }
 
-  // 3) Render states
-  if (errorMsg)       return <p className="p-6 text-red-600">{errorMsg}</p>
-  if (step === 'loading') return <p className="p-6">Validating recovery link…</p>
-  if (step === 'success') return <p className="p-6 text-green-600">Password updated! Redirecting…</p>
+  // 3️⃣ Render all the states
+  if (errorMsg) {
+    return <p className="p-6 text-red-600">{errorMsg}</p>
+  }
+  if (step === 'loading') {
+    return <p className="p-6">Validating recovery link…</p>
+  }
+  if (step === 'success') {
+    return (
+      <p className="p-6 text-green-600">
+        Password updated! Redirecting to login…
+      </p>
+    )
+  }
 
+  // step === 'form'
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
       <form onSubmit={handleReset} className="space-y-6 w-full max-w-sm">
-        <h1 className="text-2xl font-semibold text-center">Choose a New Password</h1>
+        <h1 className="text-2xl font-semibold text-center">
+          Choose a new password
+        </h1>
+
         <input
           type="password"
           placeholder="New password"
@@ -78,6 +86,7 @@ export default function ResetPasswordForm() {
           required
           className="w-full p-3 border rounded"
         />
+
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700"
