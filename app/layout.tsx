@@ -14,7 +14,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="min-h-screen flex flex-col">
         {/* 1) Clerk handles front-end auth */}
-        <ClerkProvider>
+        <ClerkProvider 
+          publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+        >
           {/* 2) Our simple Supabase client context */}
           <SupabaseProvider>
             {/* 3) Your site-wide NavBar */}
