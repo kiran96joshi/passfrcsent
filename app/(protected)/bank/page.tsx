@@ -2,11 +2,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter }           from 'next/navigation'
-import Link                    from 'next/link'
-
-import { useUser }          from '@/lib/useUser'
-import { supabaseBrowser }  from '@/lib/supabaseBrowser'
+import Link from 'next/link'
+import { supabaseBrowser } from '@/lib/supabaseBrowser'
 
 const TOPICS = [
   'Otology',
@@ -17,56 +14,43 @@ const TOPICS = [
 ]
 
 export default function BankPage() {
-  const user   = useUser()
-  const router = useRouter()
-
-  // 1) Auth guard
-  // — while auth is still initializing, user===undefined, render nothing
-  if (user === undefined) return null
-
-  // — if we know user is logged out, kick them back to /login
-  useEffect(() => {
-    if (user === null) router.replace('/login')
-  }, [user, router])
-
-  // — until redirect finishes, don’t show the page
-  if (!user) return null
-
-  // 2) Category filters
+  // 1) Category filters
   const [checked, setChecked] = useState<string[]>(TOPICS)
 
-  // 3) Query state
-  const [count,       setCount]       = useState<number | null>(null)
+  // 2) Query result state
+  const [count, setCount] = useState<number | null>(null)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
-  // 4) Fetch count + ids from Supabase whenever filters change
+  // 3) Fetch matching question IDs & total whenever `checked` changes
   useEffect(() => {
-    const run = async () => {
+    let cancelled = false
+
+    async function load() {
       if (checked.length === 0) {
         setCount(0)
         setSelectedIds([])
         return
       }
-
       const { data, count: c, error } = await supabaseBrowser
         .from('questions')
         .select('id', { count: 'exact' })
         .in('topic', checked)
 
-      if (!error) {
+      if (!cancelled && !error) {
         setCount(c ?? 0)
-        setSelectedIds((data ?? []).map((r) => r.id))
+        setSelectedIds((data ?? []).map((r :{ id: string}) => r.id))
       }
     }
-    run()
+
+    load()
+    return () => { cancelled = true }
   }, [checked])
 
-  // 5) Render
   return (
     <main className="max-w-5xl mx-auto p-4 space-y-6">
       <h1 className="text-2xl font-semibold mb-4">Question Bank</h1>
 
-      {/* ── Categories */}
+      {/* ── Category Checklist ── */}
       <section className="border rounded p-4">
         <h2 className="font-semibold mb-2">Categories</h2>
         {TOPICS.map((topic) => (
@@ -87,23 +71,22 @@ export default function BankPage() {
         ))}
       </section>
 
-      {/* ── Results & Start Button */}
+      {/* ── Results & Start Button ── */}
       <section className="space-y-3 text-center">
-        {count === null ? '…' : `${count} question${count === 1 ? '' : 's'} found`}
+        {count === null ? 'Loading…' : `${count} question${count === 1 ? '' : 's'} found`}
 
-        <div>
-          <Link
-            href={{
-              pathname: '/practice',
-              query: { ids: selectedIds.join(',') },
-            }}
-            className={`inline-block bg-blue-600 text-white px-6 py-2 rounded ${
-              selectedIds.length ? '' : 'pointer-events-none opacity-40'
-            }`}
-          >
-            Start the questions →
-          </Link>
-        </div>
+        <Link
+          href={{
+            pathname: '/practice',
+            query: { ids: selectedIds.join(',') },
+          }}
+          className={`
+            inline-block bg-blue-600 text-white px-6 py-2 rounded
+            ${selectedIds.length ? 'opacity-100' : 'pointer-events-none opacity-40'}
+          `}
+        >
+          Start the questions →
+        </Link>
       </section>
     </main>
   )

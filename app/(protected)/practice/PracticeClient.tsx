@@ -123,9 +123,15 @@ export default function PracticeClient() {
         .select('id')
         .single()
 
-      if (sessErr || !sess) {
-        console.error('Session insert failed:', sessErr)
-        return
+        if (sessErr) {
+          console.error(
+            'Session insert failed:',
+            sessErr.message,
+            sessErr.details,
+            sessErr.hint,
+            sessErr.code
+          );
+          return;
       }
 
       // 2) insert all attempt rows

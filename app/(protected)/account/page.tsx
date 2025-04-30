@@ -1,45 +1,61 @@
+// app/(protected)/account/page.tsx
 'use client'
 
 import { useEffect, useState, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
-import { supabaseBrowser } from '@/lib/supabaseBrowser'
-import { useUser } from '@/lib/useUser'
+import { useRouter }                      from 'next/navigation'
+import { supabaseBrowser }                from '@/lib/supabaseBrowser'
+import { useUser }                        from '@/lib/useUser'
+
+type Profile = {
+  id:         string
+  exam_date:  string | null
+}
 
 export default function AccountSettingsPage() {
-  const router = useRouter()
-  const user   = useUser()
+  const router   = useRouter()
+  const user     = useUser()
+
   const [examDate, setExamDate] = useState<string>('')
   const [loading,  setLoading]  = useState(true)
   const [saving,   setSaving]   = useState(false)
 
+  // ――― Auth guard ―――
+  if (user === undefined) return null
+  if (user === null) {
+    router.replace('/login')
+    return null
+  }
+
+  // ――― Load existing profile exam_date ―――
   useEffect(() => {
-    if (!user) {
-      router.replace('/login')
-      return
-    }
     ;(async () => {
-      const { data, error } = await supabaseBrowser
+      const res = await supabaseBrowser
         .from('profiles')
         .select('exam_date')
         .eq('id', user.id)
         .single()
 
-      if (error) {
-        console.error('Error loading profile:', error.message)
-      } else if (data?.exam_date) {
-        setExamDate(data.exam_date)
+      if (res.error) {
+        console.error('Error loading profile:', res.error.message)
+      } else if (res.data) {
+        // cast into our Profile type
+        const profile = res.data as Profile
+        if (profile.exam_date) setExamDate(profile.exam_date)
       }
+
       setLoading(false)
     })()
-  }, [user, router])
+  }, [user.id])
 
+  // ――― Save handler ―――
   const handleSave = async (e: FormEvent) => {
     e.preventDefault()
     setSaving(true)
 
+    // we upsert a plain JS object, no TS generics needed
     const { error } = await supabaseBrowser
       .from('profiles')
-      .upsert({ id: user!.id, exam_date: examDate || null })
+      .upsert({ id: user.id, exam_date: examDate || null })
 
     if (error) {
       console.error('Error saving settings:', error.message)
@@ -47,6 +63,7 @@ export default function AccountSettingsPage() {
     } else {
       alert('Settings saved!')
     }
+
     setSaving(false)
   }
 

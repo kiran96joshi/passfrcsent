@@ -1,11 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { supabaseBrowser } from '@/lib/supabaseBrowser'
-import { useUser } from '@/lib/useUser'
-import Link from 'next/link'
+import { useRouter }           from 'next/navigation'
+import Link                    from 'next/link'
 
+// 1️⃣ Pull in Clerk’s hook:
+import { useUser as useClerkUser } from '@clerk/nextjs'
+
+import { supabaseBrowser }  from '@/lib/supabaseBrowser'
+
+// 2️⃣ Only the real columns:
 type Session = {
   id: string
   user_id: string
@@ -18,56 +22,72 @@ type Session = {
 
 export default function DashboardPage() {
   const router = useRouter()
-  const user   = useUser()
+  const { isLoaded, isSignedIn, user } = useClerkUser()
 
   const [sessions, setSessions] = useState<Session[] | null>(null)
   const [loading,  setLoading]  = useState(true)
   const [examDate, setExamDate] = useState<string | null>(null)
-  const [daysLeft,  setDaysLeft]  = useState<number | null>(null)
+  const [daysLeft, setDaysLeft] = useState<number | null>(null)
 
   useEffect(() => {
-    if (!user) {
+    // 3️⃣ Wait for Clerk to load & redirect if necessary
+    if (!isLoaded) return
+    if (!isSignedIn) {
       router.replace('/login')
       return
     }
 
     ;(async () => {
-      // 1) fetch sessions
+      const clerkId = user!.id
+
+      // 4️⃣ Fetch only real session columns, order by started_at
       const { data: sessData, error: sessErr } = await supabaseBrowser
         .from('sessions')
-        .select('*')
-        .eq('user_id', user.id)
+        .select(`
+          id,
+          user_id,
+          score,
+          total,
+          percent,
+          started_at,
+          finished_at
+        `)
+        .eq('user_id', clerkId)
         .order('started_at', { ascending: false })
+        .limit(5)
 
       if (sessErr) {
         console.error('Error fetching sessions:', sessErr.message)
+        setSessions([])
       } else {
-        setSessions(sessData)
+        setSessions(sessData ?? [])
       }
 
-      // 2) fetch exam_date
+      // 5️⃣ Fetch your exam_date from profiles (assuming you converted profiles.id → text)
       const { data: profData, error: profErr } = await supabaseBrowser
         .from('profiles')
         .select('exam_date')
-        .eq('id', user.id)
-        .single()
+        .eq('id', clerkId)
+        .maybeSingle()
 
       if (profErr) {
         console.error('Error fetching profile:', profErr.message)
       } else if (profData?.exam_date) {
         setExamDate(profData.exam_date)
-        const diffMs =
-          new Date(profData.exam_date).getTime() -
-          new Date().getTime()
-        setDaysLeft(Math.ceil(diffMs / (1000 * 60 * 60 * 24)))
+        const ms = new Date(profData.exam_date).getTime() - Date.now()
+        setDaysLeft(Math.ceil(ms / (1000 * 60 * 60 * 24)))
       }
 
       setLoading(false)
     })()
-  }, [user, router])
+  }, [isLoaded, isSignedIn, user, router])
 
-  if (loading) return <p className="p-4">Loading your dashboard…</p>
-  if (!sessions) return <p className="p-4">No session data.</p>
+  if (loading) {
+    return <p className="p-4">Loading your dashboard…</p>
+  }
+  if (sessions === null) {
+    return <p className="p-4 text-red-600">Failed to load your sessions.</p>
+  }
 
   return (
     <main className="max-w-4xl mx-auto p-6 space-y-6">
@@ -107,7 +127,7 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {sessions.slice(0, 5).map(s => (
+              {sessions.map((s) => (
                 <tr key={s.id} className="border-t">
                   <td className="px-4 py-2">
                     {new Date(s.started_at).toLocaleDateString()}

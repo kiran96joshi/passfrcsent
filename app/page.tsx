@@ -1,4 +1,3 @@
-/* --- app/page.tsx -------------------------------------------------- */
 'use client';
 
 import { useState } from 'react';
@@ -7,6 +6,7 @@ import { useUser } from '@/lib/useUser';
 
 export default function Home() {
   const user = useUser();
+
   /* FAQ accordion state */
   const [open, setOpen] = useState<number | null>(null);
   const toggle = (i: number) =>
@@ -30,19 +30,31 @@ export default function Home() {
             Try the demo
           </Link>
 
-          {/* only show “Go to Dashboard” if signed in */}
+          {/* question bank: gated behind login */}
           {user ? (
+            <Link
+              href="/bank"
+              className="px-8 py-3 rounded border border-blue-600 text-blue-600 text-center hover:bg-blue-50"
+            >
+              Question Bank →
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="px-8 py-3 rounded border border-gray-300 text-gray-400 text-center cursor-not-allowed"
+            >
+              Question Bank (sign in required)
+            </Link>
+          )}
+
+          {/* go to dashboard only when logged in */}
+          {user && (
             <Link
               href="/dashboard"
               className="px-8 py-3 rounded bg-green-600 text-white text-center hover:bg-green-700"
             >
               Go to Dashboard
             </Link>
-          ) : (
-            /* placeholder for gating – you could link to /login here */
-            <span className="px-8 py-3 rounded border border-gray-300 text-gray-400 text-center">
-              Question bank&nbsp;(sign in required)
-            </span>
           )}
         </div>
       </section>
