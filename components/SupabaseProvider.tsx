@@ -1,33 +1,44 @@
+// components/SupabaseProvider.tsx
 'use client'
 
-import { ReactNode, useState, useEffect } from 'react'
-import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
-import {
-  SessionContextProvider,
-  Session,
-} from '@supabase/auth-helpers-react'
+import { ReactNode, createContext, useContext, useMemo } from 'react'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
+
+/**
+ * Make sure you have these two in your .env.local:
+ *
+ * NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+ * NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ…   ← your anon (public) key
+ */
+const SupabaseContext = createContext<SupabaseClient | null>(null)
 
 export function SupabaseProvider({ children }: { children: ReactNode }) {
-  // 1) create the browser client (will read the cookie)
-  const supabase = createPagesBrowserClient()
-
-  // 2) hold the current session in a state so we can pass it synchronously
-  const [initialSession, setInitialSession] = useState<Session | null>(null)
-
-  useEffect(() => {
-    // grab the current session, then store it
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setInitialSession(session)
-    })
-  }, [supabase])
+  // only recreate the client once on the client side
+  const supabase = useMemo(
+    () =>
+      createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      ),
+    []
+  )
 
   return (
-    // 3) now wrap your app in the React helper provider
-    <SessionContextProvider
-      supabaseClient={supabase}
-      initialSession={initialSession}
-    >
+    <SupabaseContext.Provider value={supabase}>
       {children}
-    </SessionContextProvider>
+    </SupabaseContext.Provider>
   )
+}
+
+/**
+ * Call this from any client component to get your initialized Supabase client.
+ */
+export function useSupabaseClient() {
+  const client = useContext(SupabaseContext)
+  if (!client) {
+    throw new Error(
+      'useSupabaseClient must be used inside a <SupabaseProvider />'
+    )
+  }
+  return client
 }
